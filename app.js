@@ -4,7 +4,7 @@ const puppeteer = require('puppeteer');
 const path = require('path');
 require('dotenv').config(); 
 
-const { collectProductDetails, collectCorePackagingWeight, collectUniversalProductDescription } = require('./userinput');
+const { collectProductDetails, collectCorePackagingWeight, collectCustomsDescriptionsAndMapProducts } = require('./userinput');
 const { readCsvAndProcessOrders } = require('./orderProcessing');
 
 //Create interface for user input/output
@@ -28,8 +28,9 @@ async function run() {
 
     //Collect product details, packaging weight, and product description from the user
     const productDetails = await collectProductDetails(askQuestion);
-    const corePackagingWeight = await collectCorePackagingWeight(askQuestion);  
-    const universalProductDescription = await collectUniversalProductDescription(askQuestion, rl);  
+    const corePackagingWeight = await collectCorePackagingWeight(askQuestion);
+    const productToDescription = await collectCustomsDescriptionsAndMapProducts(askQuestion, productDetails);
+    rl.close(); // close readline after all prompts
 
     //Launch Puppeteer browser in non-headless mode
     await new Promise(resolve => setTimeout(resolve, 5000));
@@ -57,8 +58,8 @@ async function run() {
     console.log('Please solve the captcha manually and press "continue" to proceed to the next page...');
 
     //Process orders after the user has logged in
-    await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, universalProductDescription, csvFilePath);
-
+    await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath);
+    
     await browser.close();
 }
 
