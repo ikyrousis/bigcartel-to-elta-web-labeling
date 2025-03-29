@@ -1,54 +1,81 @@
-This Node.js application automates the process of creating shipping labels on the ELTA web portal using order data from BigCartel. The app reads order information from a CSV file, prompts the user for necessary details and generates labels using Puppeteer for browser automation.
+BigCartel to ELTA Web Labeling
+
+This application automates the process of creating shipping labels on the ELTA web portal using order data exported from BigCartel. It provides a graphical user interface (GUI) for entering product and customs information and uses Puppeteer to handle browser automation for label generation.
+Technologies Used
+
+    Node.js (backend logic)
+
+    React (frontend UI)
+
+    Electron (desktop application shell)
+
+    Puppeteer (browser automation)
+
+    csv-parser (CSV reading)
+
+    dotenv (environment variables)
+
 Prerequisites
 
-    Node.js: Ensure Node.js is installed on your machine.
-    Puppeteer: The app uses Puppeteer for browser automation.
-    .env File: You need to create a .env file with sender details.
+    Node.js installed (version 16+ recommended)
+
+    npm or yarn
 
 Setup
-1. Clone the Repository
 
-bash
+    Clone the Repository
 
 git clone <https://github.com/kyrousisi/bigcartel-to-elta-web-labeling>
 cd <bigcartel-to-elta-web-labeling>
 
-2. Install Dependencies
-
-bash
+Install Dependencies
 
 npm install
 
-3. Edit .env File
-
 Edit the .env file in the root of the project directory and replace the corresponding sender information:
 
-EMAIL_ADDRESS=sender@mail.com
-SENDER_FIRST_NAME=SENDERNAME
-SENDER_LAST_NAME=SENDERLASTNAME
-SENDER_STREET_NAME=SENDERSTREET
-SENDER_STREET_NUMBER=1
-SENDER_POSTAL_CODE=1
-SENDER_TOWN=SENDERTOWN
+    EMAIL_ADDRESS=you@example.com
+    SENDER_FIRST_NAME=YourFirstName
+    SENDER_LAST_NAME=YourLastName
+    SENDER_STREET_NAME=StreetName
+    SENDER_STREET_NUMBER=123
+    SENDER_STREET_SPECIFICATION=
+    SENDER_POSTAL_CODE=10000
+    SENDER_TOWN=Athens
 
-Replace the placeholders with your actual details.
-4. Prepare the Orders CSV
 
-The app requires an orders.csv file in the project root directory. Ensure the file contains an order export from BigCartel.
+Export your orders from BigCartel and save the CSV locally. You’ll select this file through the app interface.
 
-Running the Application
-1. Start the App
+Running the Application (Development)
 
-Run the application using Node.js:
+To start the app in development mode:
 
-bash
+npm run dev
 
-node app.js
+This will open the Electron window and start the React frontend with hot reloading.
+Building a Production Executable
 
-2. Follow Prompts
+To compile the app into a standalone .exe or platform-specific binary:
 
-    Enter product details such as weight and customs value.
-    Provide packaging weight and a universal product description.
-    Log into ELTA’s web portal and solve the CAPTCHA manually when prompted.
+npm run build
 
-The application will then process the orders and generate shipping labels automatically.
+Follow the output instructions to locate the generated files.
+Usage
+
+    Launch the app.
+
+    Browse for your orders.csv file.
+
+    Input weight and customs value for each unique product.
+
+    Enter the core packaging weight.
+
+    Define any number of customs description categories (e.g. "T-shirt", "Hat", etc).
+
+    Assign each product to one of the categories.
+
+    Click Run Label Generator.
+
+    Log in to the ELTA portal when the browser opens, solve the CAPTCHA.
+
+    The application will automatically fill in the form and generate the labels.

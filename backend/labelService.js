@@ -1,11 +1,13 @@
 const fs = require('fs');
+const path = require('path');
 const csv = require('csv-parser');
+const puppeteer = require('puppeteer');
 const { cleanPhoneNumber, normalizeText, formatWeightForInput } = require('./formatters');
-const { countryCodeToName, stateAbbreviations } = require('./geographicalMappings');
+const { countryCodeToName, stateAbbreviations } = require('./regionMappings');
 require('dotenv').config();
 
 //Read orders from CSV and process them
-async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, universalProductDescription, csvFilePath) {
+async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {
     const results = [];
     const uniqueProducts = new Set();
 
@@ -14,23 +16,23 @@ async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight
             .pipe(csv())
             .on('data', (data) => {
                 //Convert to string to ensure leading zeros are preserved
-                const postalCode = String(data['Shipping zip']); 
+                const postalCode = String(data['Shipping zip']);
                 //Initialize the total quantity for this order
-                let totalQuantity = 0;  
+                let totalQuantity = 0;
                 //Initialize the total value for this order
-                let totalOrderValue = 0;  
+                let totalOrderValue = 0;
                 const items = data['Items'].split(';').map(item => {
                     const parts = item.split('|');
                     const productPart = parts.find(p => p.startsWith('product_name'));
                     //Use 'Unknown' or some other default
-                    const productName = productPart ? productPart.split(':')[1] : 'Unknown'; 
+                    const productName = productPart ? productPart.split(':')[1] : 'Unknown';
                     const quantityPart = parts.find(p => p.startsWith('quantity'));
                     //Default to 0 if not found
-                    const quantity = quantityPart ? parseInt(quantityPart.split(':')[1], 10) : 0; 
-                    totalQuantity += quantity;  
+                    const quantity = quantityPart ? parseInt(quantityPart.split(':')[1], 10) : 0;
+                    totalQuantity += quantity;
                     const itemPrice = parseFloat(productDetails[productName]?.customsValue || '0');
                     //Calculate total order value
-                    totalOrderValue += itemPrice * quantity;  
+                    totalOrderValue += itemPrice * quantity;
                     uniqueProducts.add(productName.trim());
 
                     return { productName, quantity };
@@ -44,17 +46,17 @@ async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight
 
                 if (countriesWithNumberFirst.includes(data['Shipping country'])) {
                     const addressParts = data['Shipping address 1'].split(' ');
-                
+
                     //Check if the first part of the address starts with a number and optionally followed by letters
                     if (/^\d+[A-Za-z]*/.test(addressParts[0])) {
                         //Extract the first element as number or number+letter
-                        addressNumber = addressParts.shift(); 
+                        addressNumber = addressParts.shift();
                         //Join the rest as the address
-                        addressRest = addressParts.join(' '); 
+                        addressRest = addressParts.join(' ');
                     } else {
                         addressNumber = '-';
                         //Use the full address if the first part is not a number or number+letter
-                        addressRest = data['Shipping address 1']; 
+                        addressRest = data['Shipping address 1'];
                     }
                 } else {
                     addressNumber = '-';
@@ -84,7 +86,7 @@ async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight
                 console.log('CSV file processing started.');
                 for (const order of results) {
                     try {
-                        await processOrder(page, order, productDetails, corePackagingWeight, universalProductDescription);
+                        await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
                         console.log(`Processed order for ${order.firstName} ${order.lastName} - Country: ${order.country}`);
                     } catch (error) {
                         console.error(`Error processing order for ${order.firstName} ${order.lastName}:`, error);
@@ -101,7 +103,7 @@ async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight
     });
 }
 
-async function processOrder(page, order, productDetails, corePackagingWeight, universalProductDescription) {
+async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
     //Navigate to the 'New Voucher' page
     await page.waitForSelector('#NavNewVoucher', { visible: true });
     await page.click('#NavNewVoucher');
@@ -144,7 +146,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
     //Click the button by its id
     await page.click('#btnCreateVoucher');
 
-    
+
     //Wait for the process to complete
     await new Promise(resolve => setTimeout(resolve, 2000));
 
@@ -153,6 +155,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
     await page.$eval('input[name="SenderLastName"]', (el, value) => el.value = value, process.env.SENDER_LAST_NAME);
     await page.$eval('input[name="SenderStreetName"]', (el, value) => el.value = value, process.env.SENDER_STREET_NAME);
     await page.$eval('input[name="SenderStreetNumber"]', (el, value) => el.value = value, process.env.SENDER_STREET_NUMBER);
+    await page.$eval('input[name="SenderStreetSpecification"]', (el, value) => el.value = value, process.env.SENDER_STREET_SPECIFICATION);
     await page.$eval('input[name="SenderPostalCode"]', (el, value) => el.value = value, process.env.SENDER_POSTAL_CODE);
     await page.$eval('input[name="SenderTown"]', (el, value) => el.value = value, process.env.SENDER_TOWN);
 
@@ -181,7 +184,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
 
     //Calculate the total weight of all items
     //Start with the core packaging weight
-    let totalWeight = parseFloat(corePackagingWeight); 
+    let totalWeight = parseFloat(corePackagingWeight);
 
     for (const item of order.items) {
         const itemDetail = productDetails[item.productName];
@@ -189,7 +192,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
             const itemWeight = parseFloat(itemDetail.weight);
             const quantity = parseInt(item.quantity, 10);
             //Add product weight multiplied by its quantity
-            totalWeight += itemWeight * quantity; 
+            totalWeight += itemWeight * quantity;
         }
     }
 
@@ -200,9 +203,9 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
     await page.evaluate(() => {
         const checkbox = document.querySelector('#VoucherDetailGift');
         //Force checkbox to checked state
-        checkbox.checked = true; 
+        checkbox.checked = true;
         //Trigger change event if needed
-        checkbox.dispatchEvent(new Event('change')); 
+        checkbox.dispatchEvent(new Event('change'));
     });
 
     await page.click('button[data-step="3"]').catch(e => console.error("Error clicking the 'Next' button:", e.message));
@@ -214,15 +217,39 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
     const nonEuropeanCountries = ['CA', 'US', 'GB', 'AU', 'JP', 'KR', 'NO', 'CH', 'NZ', 'TW'];
 
     if (nonEuropeanCountries.includes(order.country)) {
-    await page.type('input[name="CustomsDeclarationDetailedDescriptionOfContents1"]', universalProductDescription);
-    await page.type('input[name="CustomsDeclarationQuantity1"]', order.totalQuantity.toString());
-    await page.type('input[name="CustomsDeclarationNetWeight1"]', formatWeightForInput(totalWeight));
-    await page.type('input[name="CustomsDeclarationValue1"]', order.totalOrderValue.toFixed(2).replace('.', ','));
+        const customsGroups = {};
 
-    await page.click('button[data-step="4"]').catch(e => console.error("Error clicking the 'Next' button:", e.message));
+        for (const item of order.items) {
+            const productName = item.productName;
+            const quantity = item.quantity;
+            const productDetail = productDetails[productName];
+            const description = productToDescription[productName];
 
-    //Wait for the process to complete
-    await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!customsGroups[description]) {
+                customsGroups[description] = { quantity: 0, weight: 0, value: 0 };
+            }
+
+            const weight = parseFloat(productDetail.weight);
+            const value = parseFloat(productDetail.customsValue);
+
+            customsGroups[description].quantity += quantity;
+            customsGroups[description].weight += weight * quantity;
+            customsGroups[description].value += value * quantity;
+        }
+
+        let rowIndex = 1;
+        for (const [description, data] of Object.entries(customsGroups)) {
+            await page.type(`input[name="CustomsDeclarationDetailedDescriptionOfContents${rowIndex}"]`, description);
+            await page.type(`input[name="CustomsDeclarationQuantity${rowIndex}"]`, data.quantity.toString());
+            await page.type(`input[name="CustomsDeclarationNetWeight${rowIndex}"]`, formatWeightForInput(data.weight));
+            await page.type(`input[name="CustomsDeclarationValue${rowIndex}"]`, data.value.toFixed(2).replace('.', ','));
+            rowIndex++;
+        }
+
+        await page.click('button[data-step="4"]').catch(e => console.error("Error clicking the 'Next' button:", e.message));
+
+        //Wait for the process to complete
+        await new Promise(resolve => setTimeout(resolve, 1000));
     }
 
     //Wait for the button to be clickable and visible
@@ -235,8 +262,41 @@ async function processOrder(page, order, productDetails, corePackagingWeight, un
     await new Promise(resolve => setTimeout(resolve, 5000));
 }
 
+async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToDescription }) {
+    const browser = await puppeteer.launch({ headless: false });
+    const page = await browser.newPage();
+
+    try {
+        const client = await page.target().createCDPSession();
+        await client.send('Page.setDownloadBehavior', {
+            behavior: 'allow',
+            downloadPath: path.resolve(__dirname, '..'),
+        });
+
+        await page.goto('https://weblabeling.elta.gr/en-GB/Account/NCLogin', { waitUntil: 'domcontentloaded' });
+        console.log('✅ Page loaded');
+
+        await page.waitForSelector('input[name="Email"]', { timeout: 15000 });
+        await page.type('input[name="Email"]', process.env.EMAIL_ADDRESS);
+        await page.click('input[name="AgreedToTerms"]');
+        console.log('✅ Form filled. Solve CAPTCHA...');
+
+        // Wait for CAPTCHA to be solved
+        await new Promise(resolve => setTimeout(resolve, 20000));
+
+        console.log("productToDescription:", productToDescription);
+
+        await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvPath);
+    } catch (err) {
+        console.error('❌ Puppeteer failed:', err);
+        await page.screenshot({ path: 'puppeteer-error.png' });
+    }
+
+    await browser.close();
+}
 
 module.exports = {
     readCsvAndProcessOrders,
-    processOrder
-  };
+    processOrder,
+    runPuppeteerWithData
+};
