@@ -263,7 +263,10 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
 }
 
 async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToDescription }) {
-    const browser = await puppeteer.launch({ headless: false });
+    const browser = await puppeteer.launch({
+        headless: false,
+        protocolTimeout: 0 // disable timeout completely
+      });      
     const page = await browser.newPage();
 
     try {
@@ -282,7 +285,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         console.log('✅ Form filled. Solve CAPTCHA...');
 
         // Wait for CAPTCHA to be solved
-        await new Promise(resolve => setTimeout(resolve, 20000));
+        await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); // waits indefinitely
 
         console.log("productToDescription:", productToDescription);
 

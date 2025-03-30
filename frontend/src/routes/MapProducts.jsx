@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
@@ -6,6 +6,7 @@ function MapProducts() {
   const {
     uniqueProducts,
     customsDescriptions,
+    productToDescription,
     setProductToDescription,
     csvPath,
     productDetails,
@@ -15,8 +16,12 @@ function MapProducts() {
   const [mapping, setMapping] = useState({});
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setMapping({ ...productToDescription });
+  }, [productToDescription]);
+
   const handleSelect = (product, value) => {
-    setMapping((prev) => ({
+    setMapping(prev => ({
       ...prev,
       [product]: value
     }));
@@ -31,7 +36,6 @@ function MapProducts() {
 
     setProductToDescription(mapping);
 
-    // ✅ Correct data sent to backend
     window.electronAPI.runLabelGenerator({
       csvPath,
       productDetails,
@@ -40,13 +44,21 @@ function MapProducts() {
     });
   };
 
+  const handleBack = () => {
+    navigate('/customs-descriptions');
+  };
+
   return (
     <div style={{ padding: '2rem' }}>
       <h2>🔗 Match Products to Customs Descriptions</h2>
+
       {uniqueProducts.map(product => (
         <div key={product} style={{ marginBottom: '1rem' }}>
           <label><strong>{product}</strong></label>
-          <select onChange={(e) => handleSelect(product, e.target.value)} defaultValue="">
+          <select
+            value={mapping[product] || ''}
+            onChange={(e) => handleSelect(product, e.target.value)}
+          >
             <option value="" disabled>Select category</option>
             {customsDescriptions.map((desc, i) => (
               <option key={i} value={desc}>{desc}</option>
@@ -54,7 +66,11 @@ function MapProducts() {
           </select>
         </div>
       ))}
-      <button onClick={handleFinish}>Run Label Generator</button>
+
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+        <button onClick={handleBack}>Back</button>
+        <button onClick={handleFinish}>Run Label Generator</button>
+      </div>
     </div>
   );
 }

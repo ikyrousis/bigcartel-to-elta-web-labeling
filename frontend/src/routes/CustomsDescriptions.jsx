@@ -3,46 +3,64 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 function CustomsDescriptions() {
+  const { customsDescriptions, setCustomsDescriptions } = useAppContext();
   const [input, setInput] = useState('');
-  const [descriptions, setDescriptions] = useState([]);
   const navigate = useNavigate();
-  const { setCustomsDescriptions } = useAppContext();
 
-  const addDescription = () => {
-    if (input.trim() && !descriptions.includes(input.trim())) {
-      setDescriptions([...descriptions, input.trim()]);
-      setInput('');
-    }
+  const handleAdd = () => {
+    if (!input.trim()) return;
+    setCustomsDescriptions([...customsDescriptions, input.trim()]);
+    setInput('');
   };
 
   const handleNext = () => {
-    if (descriptions.length === 0) {
-      alert('Please add at least one customs description.');
+    if (customsDescriptions.length === 0) {
+      alert('Please add at least one description.');
       return;
     }
-    setCustomsDescriptions(descriptions);
     navigate('/map-products');
+  };
+
+  const handleBack = () => {
+    navigate('/core-weight');
   };
 
   return (
     <div style={{ padding: '2rem' }}>
-      <h2>📝 Add Customs Descriptions</h2>
+      <h2>📝 Enter Customs Description Categories</h2>
+
       <input
-        placeholder="e.g. T-Shirt, DVD, Mug..."
+        placeholder="e.g. Accessories, T-Shirts"
         value={input}
         onChange={(e) => setInput(e.target.value)}
+        style={{ marginRight: '1rem' }}
       />
-      <button onClick={addDescription}>Add</button>
+
+      <div style={{ marginTop: '1rem' }}>
+        <button onClick={handleAdd} style={{ ...buttonStyle, marginRight: '1rem' }}>Add Description</button>
+      </div>
 
       <ul>
-        {descriptions.map((desc, i) => (
-          <li key={i}>{desc}</li>
+        {customsDescriptions.map((desc, index) => (
+          <li key={index}>{desc}</li>
         ))}
       </ul>
 
-      <button onClick={handleNext} disabled={descriptions.length === 0}>Next</button>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+        <button onClick={handleBack} style={buttonStyle}>Back</button>
+        <button onClick={handleNext} style={buttonStyle}>Next</button>
+      </div>
     </div>
   );
 }
+
+const buttonStyle = {
+  padding: '0.5rem 1rem',
+  fontSize: '1rem',
+  borderRadius: '6px',
+  border: '1px solid #ccc',
+  background: '#f9f9f9',
+  cursor: 'pointer'
+};
 
 export default CustomsDescriptions;

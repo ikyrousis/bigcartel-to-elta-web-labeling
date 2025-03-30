@@ -1,19 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 function CoreWeight() {
-  const { setCorePackagingWeight } = useAppContext();
+  const { corePackagingWeight, setCorePackagingWeight } = useAppContext();
   const [weight, setWeight] = useState('');
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setWeight(corePackagingWeight || '');
+  }, [corePackagingWeight]);
+
   const handleNext = () => {
     if (!weight || isNaN(weight)) {
-      alert('Please enter a valid weight in kilograms.');
+      alert('Please enter a valid weight.');
       return;
     }
+
     setCorePackagingWeight(weight);
     navigate('/customs-descriptions');
+  };
+
+  const handleBack = () => {
+    navigate('/product-details');
   };
 
   return (
@@ -26,7 +35,10 @@ function CoreWeight() {
         value={weight}
         onChange={(e) => setWeight(e.target.value)}
       />
-      <button onClick={handleNext} style={{ marginLeft: '1rem' }}>Next</button>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+        <button onClick={handleBack}>Back</button>
+        <button onClick={handleNext}>Next</button>
+      </div>
     </div>
   );
 }

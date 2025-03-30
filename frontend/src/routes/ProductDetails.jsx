@@ -1,14 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 function ProductDetails() {
-  const { uniqueProducts, setProductDetails } = useAppContext();
+  const { uniqueProducts, productDetails, setProductDetails } = useAppContext();
   const [form, setForm] = useState({});
   const navigate = useNavigate();
 
+  useEffect(() => {
+    setForm({ ...productDetails });
+  }, [productDetails]);
+
   const handleChange = (product, field, value) => {
-    setForm((prev) => ({
+    setForm(prev => ({
       ...prev,
       [product]: {
         ...prev[product],
@@ -27,30 +31,41 @@ function ProductDetails() {
     }
 
     setProductDetails(form);
-    navigate('/core-weight'); // go to next screen
+    navigate('/core-weight');
+  };
+
+  const handleBack = () => {
+    navigate('/');
   };
 
   return (
     <div style={{ padding: '2rem' }}>
       <h2>📦 Enter Weight & Value for Products</h2>
-      {uniqueProducts.map((product) => (
+
+      {uniqueProducts.map(product => (
         <div key={product} style={{ marginBottom: '1rem' }}>
           <strong>{product}</strong><br />
           <input
             placeholder="Weight (kg)"
             type="number"
             step="0.01"
+            value={form[product]?.weight || ''}
             onChange={(e) => handleChange(product, 'weight', e.target.value)}
           />
           <input
             placeholder="Customs Value (€)"
             type="number"
             step="0.01"
+            value={form[product]?.customsValue || ''}
             onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
           />
         </div>
       ))}
-      <button onClick={handleNext}>Next</button>
+
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+        <button onClick={handleBack}>Back</button>
+        <button onClick={handleNext}>Next</button>
+      </div>
     </div>
   );
 }
