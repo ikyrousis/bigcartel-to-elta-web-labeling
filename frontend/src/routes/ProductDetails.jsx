@@ -42,7 +42,7 @@ function ProductDetails() {
     <div className="page-wrapper">
       <div className="centered-container">
         <h2>📦 Enter Weight & Value for Products</h2>
-        
+
         <div className="product-details-container">
           {uniqueProducts.map((product) => (
             <div key={product} className="product-input-group">
@@ -52,28 +52,37 @@ function ProductDetails() {
                   placeholder="Weight (kg)"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={form[product]?.weight || ''}
-                  onChange={(e) => handleChange(product, 'weight', e.target.value)}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    handleChange(product, 'weight', val >= 0 ? e.target.value : '');
+                  }}
                 />
+
                 <input
                   placeholder="Customs Value (€)"
                   type="number"
                   step="0.01"
+                  min="0"
                   value={form[product]?.customsValue || ''}
-                  onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
+                  onChange={(e) => {
+                    const val = parseFloat(e.target.value);
+                    handleChange(product, 'customsValue', val >= 0 ? e.target.value : '');
+                  }}
                 />
               </div>
             </div>
           ))}
         </div>
-        
+
         <div className="button-group">
           <button onClick={handleBack}>Back</button>
           <button onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>
-  ); 
+  );
 }
 
 export default ProductDetails;

@@ -12,8 +12,15 @@ function CoreWeight() {
   }, [corePackagingWeight]);
 
   const handleNext = () => {
-    if (!weight || isNaN(weight)) {
+    const numWeight = parseFloat(weight);
+    
+    if (!weight || isNaN(numWeight)) {
       alert('Please enter a valid weight.');
+      return;
+    }
+
+    if (numWeight < 0) {
+      alert('Weight cannot be negative.');
       return;
     }
 
@@ -41,7 +48,10 @@ function CoreWeight() {
             step="0.01"
             placeholder="0.00"
             value={weight}
-            onChange={(e) => setWeight(e.target.value)}
+            onChange={(e) => {
+              const val = parseFloat(e.target.value);
+              setWeight(val >= 0 ? e.target.value : '');
+            }}
             min="0"
           />
           <span className="input-suffix">kg</span>
