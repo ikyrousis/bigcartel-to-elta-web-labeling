@@ -30,14 +30,21 @@ function CoreWeight() {
       <div className="centered-container">
         <h2>📦 Core Packaging Weight</h2>
         
-        <div className="input-group" style={{ maxWidth: '300px', margin: '2rem auto' }}>
+        <div className="guideline-box">
+          <p>Enter the total weight in kilograms (kg) of all packaging materials</p>
+          <p>(boxes, tape, etc.) that will be used for all shipments combined.</p>
+        </div>
+        
+        <div className="core-weight-input">
           <input
             type="number"
             step="0.01"
-            placeholder="e.g. 0.15"
+            placeholder="0.00"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
+            min="0"
           />
+          <span className="input-suffix">kg</span>
         </div>
         
         <div className="button-group">

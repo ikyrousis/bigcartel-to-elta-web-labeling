@@ -29,17 +29,17 @@ function CustomsDescriptions() {
     <div className="page-wrapper">
       <div className="centered-container">
         <h2>📝 Enter Customs Description Categories</h2>
-        
-        <div className="input-group" style={{ maxWidth: '500px', margin: '2rem auto' }}>
+
+        <div className="input-container">
           <input
             placeholder="e.g. Accessory, T-Shirt"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            className="description-input"
           />
-          <button 
+          <button
             onClick={handleAdd}
             className="add-button"
-            style={{ marginTop: '1rem' }}
           >
             Add Description
           </button>

@@ -52,21 +52,24 @@ function MapProducts() {
     <div className="page-wrapper">
       <div className="centered-container">
         <h2>🔗 Match Products to Customs Descriptions</h2>
-        
+
         <div className="mapping-container">
-          {uniqueProducts.map(product => (
-            <div key={product} className="mapping-item">
-              <label className="mapping-label"><strong>{product}</strong></label>
-              <select
-                className="mapping-select"
-                value={mapping[product] || ''}
-                onChange={(e) => handleSelect(product, e.target.value)}
-              >
-                <option value="" disabled>Select category</option>
-                {customsDescriptions.map((desc, i) => (
-                  <option key={i} value={desc}>{desc}</option>
-                ))}
-              </select>
+          {uniqueProducts.map((product, index) => (
+            <div key={product}>
+              <div className="mapping-item">
+                <span className="mapping-product" style={{ textAlign: 'left' }}>{product}</span>
+                <select
+                  className="mapping-select"
+                  value={mapping[product] || ''}
+                  onChange={(e) => handleSelect(product, e.target.value)}
+                >
+                  <option value="" disabled>Select category</option>
+                  {customsDescriptions.map((desc, i) => (
+                    <option key={i} value={desc}>{desc}</option>
+                  ))}
+                </select>
+              </div>
+              {index < uniqueProducts.length - 1 && <div className="mapping-divider" />}
             </div>
           ))}
         </div>
