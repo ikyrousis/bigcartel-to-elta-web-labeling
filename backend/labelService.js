@@ -9,99 +9,116 @@ require('dotenv').config();
 //Read orders from CSV and process them
 async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {
     const results = [];
-    const uniqueProducts = new Set();
-
+    const skippedOrders = [];
+  
     return new Promise((resolve, reject) => {
-        fs.createReadStream(csvFilePath)
-            .pipe(csv())
-            .on('data', (data) => {
-                //Convert to string to ensure leading zeros are preserved
-                const postalCode = String(data['Shipping zip']);
-                //Initialize the total quantity for this order
-                let totalQuantity = 0;
-                //Initialize the total value for this order
-                let totalOrderValue = 0;
-                const items = data['Items'].split(';').map(item => {
-                    const parts = item.split('|');
-                    const productPart = parts.find(p => p.startsWith('product_name'));
-                    //Use 'Unknown' or some other default
-                    const productName = productPart ? productPart.split(':')[1] : 'Unknown';
-                    const quantityPart = parts.find(p => p.startsWith('quantity'));
-                    //Default to 0 if not found
-                    const quantity = quantityPart ? parseInt(quantityPart.split(':')[1], 10) : 0;
-                    totalQuantity += quantity;
-                    const itemPrice = parseFloat(productDetails[productName]?.customsValue || '0');
-                    //Calculate total order value
-                    totalOrderValue += itemPrice * quantity;
-                    uniqueProducts.add(productName.trim());
-
-                    return { productName, quantity };
-                });
-
-                const countriesWithNumberFirst = ['US', 'CA', 'GB', 'AU', 'NZ'];
-                //Declare variables outside the if-else block
-                let addressNumber;
-                let addressRest;
-
-
-                if (countriesWithNumberFirst.includes(data['Shipping country'])) {
-                    const addressParts = data['Shipping address 1'].split(' ');
-
-                    //Check if the first part of the address starts with a number and optionally followed by letters
-                    if (/^\d+[A-Za-z]*/.test(addressParts[0])) {
-                        //Extract the first element as number or number+letter
-                        addressNumber = addressParts.shift();
-                        //Join the rest as the address
-                        addressRest = addressParts.join(' ');
-                    } else {
-                        addressNumber = '-';
-                        //Use the full address if the first part is not a number or number+letter
-                        addressRest = data['Shipping address 1'];
-                    }
-                } else {
-                    addressNumber = '-';
-                    addressRest = data['Shipping address 1'];
+      fs.createReadStream(csvFilePath)
+        .pipe(csv())
+        .on('data', (data) => {
+          const postalCode = String(data['Shipping zip']);
+          let totalQuantity = 0;
+          let totalOrderValue = 0;
+  
+          const items = data['Items'].split(';').map(item => {
+            const parts = item.split('|');
+            const productPart = parts.find(p => p.startsWith('product_name'));
+            const productName = productPart ? productPart.split(':')[1] : 'Unknown';
+  
+            const quantityPart = parts.find(p => p.startsWith('quantity'));
+            const quantity = quantityPart ? parseInt(quantityPart.split(':')[1], 10) : 0;
+            totalQuantity += quantity;
+  
+            const itemPrice = parseFloat(productDetails[productName]?.customsValue || '0');
+            totalOrderValue += itemPrice * quantity;
+  
+            return { productName, quantity };
+          });
+  
+          const countriesWithNumberFirst = ['US', 'CA', 'GB', 'AU', 'NZ'];
+          let addressNumber, addressRest;
+  
+          if (countriesWithNumberFirst.includes(data['Shipping country'])) {
+            const addressParts = data['Shipping address 1'].split(' ');
+            if (/^\d+[A-Za-z]*/.test(addressParts[0])) {
+              addressNumber = addressParts.shift();
+              addressRest = addressParts.join(' ');
+            } else {
+              addressNumber = '-';
+              addressRest = data['Shipping address 1'];
+            }
+          } else {
+            addressNumber = '-';
+            addressRest = data['Shipping address 1'];
+          }
+  
+          const cleanedPhoneNumber = cleanPhoneNumber(data['Buyer phone number']);
+  
+          results.push({
+            firstName: data['Buyer first name'],
+            lastName: data['Buyer last name'],
+            country: data['Shipping country'],
+            addressNumber,
+            addressRest,
+            streetSpecification: data['Shipping address 2'],
+            city: data['Shipping city'],
+            state: data['Shipping state'],
+            zip: postalCode,
+            phone: cleanedPhoneNumber,
+            totalQuantity,
+            totalOrderValue,
+            items
+          });
+        })
+        .on('end', async () => {
+          console.log('CSV file processing started.');
+  
+          for (const order of results) {
+            try {
+              let totalWeight = parseFloat(corePackagingWeight);
+  
+              for (const item of order.items) {
+                const detail = productDetails[item.productName];
+                if (detail) {
+                  const weight = parseFloat(detail.weight);
+                  const quantity = parseInt(item.quantity, 10);
+                  totalWeight += weight * quantity;
                 }
-
-                //Cleaning the phone number
-                const cleanedPhoneNumber = cleanPhoneNumber(data['Buyer phone number']);
-
-                results.push({
-                    firstName: data['Buyer first name'],
-                    lastName: data['Buyer last name'],
-                    country: data['Shipping country'],
-                    addressNumber,
-                    addressRest,
-                    streetSpecification: data['Shipping address 2'],
-                    city: data['Shipping city'],
-                    state: data['Shipping state'],
-                    zip: postalCode,
-                    phone: cleanedPhoneNumber,
-                    totalQuantity,
-                    totalOrderValue,
-                    items
+              }
+  
+              if (totalWeight > 2.0) {
+                skippedOrders.push({
+                  name: `${order.firstName} ${order.lastName}`,
+                  reason: `Total weight ${totalWeight.toFixed(2)}kg exceeds 2kg limit`
                 });
-            })
-            .on('end', async () => {
-                console.log('CSV file processing started.');
-                for (const order of results) {
-                    try {
-                        await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
-                        console.log(`Processed order for ${order.firstName} ${order.lastName} - Country: ${order.country}`);
-                    } catch (error) {
-                        console.error(`Error processing order for ${order.firstName} ${order.lastName}:`, error);
-                        reject(error);
-                    }
-                }
-                console.log('CSV file processing completed.');
-                resolve();
-            })
-            .on('error', (error) => {
-                console.error('Error reading the CSV file:', error);
-                reject(error);
-            });
+                continue;
+              }
+  
+              await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
+              console.log(`✅ Processed: ${order.firstName} ${order.lastName}`);
+            } catch (error) {
+              skippedOrders.push({
+                name: `${order.firstName} ${order.lastName}`,
+                reason: `Error: ${error.message}`
+              });
+              console.error(`❌ Failed: ${order.firstName} ${order.lastName}`, error);
+            }
+          }
+  
+          if (skippedOrders.length > 0) {
+            const logContent = skippedOrders.map(o => `${o.name} — ${o.reason}`).join('\n');
+            fs.writeFileSync(path.join(__dirname, '..', 'skipped-orders.log'), logContent);
+            console.log(`⚠️ ${skippedOrders.length} order(s) skipped. See skipped-orders.log`);
+          }
+  
+          console.log('✅ CSV file processing completed.');
+          resolve();
+        })
+        .on('error', (error) => {
+          console.error('❌ Error reading the CSV file:', error);
+          reject(error);
+        });
     });
-}
+  }
 
 async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
     //Navigate to the 'New Voucher' page
