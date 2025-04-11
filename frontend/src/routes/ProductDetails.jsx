@@ -39,32 +39,46 @@ function ProductDetails() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>📦 Enter Weight & Value for Products</h2>
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      minHeight: '100vh',
+      padding: '2rem'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '600px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center'
+      }}>
+        <h2>📦 Enter Weight & Value for Products</h2>
 
-      {uniqueProducts.map(product => (
-        <div key={product} style={{ marginBottom: '1rem' }}>
-          <strong>{product}</strong><br />
-          <input
-            placeholder="Weight (kg)"
-            type="number"
-            step="0.01"
-            value={form[product]?.weight || ''}
-            onChange={(e) => handleChange(product, 'weight', e.target.value)}
-          />
-          <input
-            placeholder="Customs Value (€)"
-            type="number"
-            step="0.01"
-            value={form[product]?.customsValue || ''}
-            onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
-          />
+        {uniqueProducts.map(product => (
+          <div key={product} style={{ marginBottom: '1rem' }}>
+            <strong>{product}</strong><br />
+            <input
+              placeholder="Weight (kg)"
+              type="number"
+              step="0.01"
+              value={form[product]?.weight || ''}
+              onChange={(e) => handleChange(product, 'weight', e.target.value)}
+            />
+            <input
+              placeholder="Customs Value (€)"
+              type="number"
+              step="0.01"
+              value={form[product]?.customsValue || ''}
+              onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
+            />
+          </div>
+        ))}
+
+        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+          <button onClick={handleBack}>Back</button>
+          <button onClick={handleNext}>Next</button>
         </div>
-      ))}
-
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-        <button onClick={handleBack}>Back</button>
-        <button onClick={handleNext}>Next</button>
       </div>
     </div>
   );

@@ -30,7 +30,7 @@ function CustomsDescriptions() {
       <h2>📝 Enter Customs Description Categories</h2>
 
       <input
-        placeholder="e.g. Accessories, T-Shirts"
+        placeholder="e.g. Accessory, T-Shirt"
         value={input}
         onChange={(e) => setInput(e.target.value)}
         style={{ marginRight: '1rem' }}
