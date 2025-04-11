@@ -5,20 +5,23 @@ import ProductDetails from './routes/ProductDetails';
 import CoreWeight from './routes/CoreWeight'; 
 import CustomsDescriptions from './routes/CustomsDescriptions';
 import MapProducts from './routes/MapProducts';
+import './App.css';
 
 function App() {
   return (
-    <AppProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<SelectCsv />} />
-          <Route path="/product-details" element={<ProductDetails />} />
-          <Route path="/core-weight" element={<CoreWeight />} /> 
-          <Route path="/customs-descriptions" element={<CustomsDescriptions />} />
-          <Route path="/map-products" element={<MapProducts />} />
-        </Routes>
-      </Router>
-    </AppProvider>
+    <div className="app-container">
+      <AppProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<SelectCsv />} />
+            <Route path="/product-details" element={<ProductDetails />} />
+            <Route path="/core-weight" element={<CoreWeight />} /> 
+            <Route path="/customs-descriptions" element={<CustomsDescriptions />} />
+            <Route path="/map-products" element={<MapProducts />} />
+          </Routes>
+        </Router>
+      </AppProvider>
+    </div>
   );
 }
 

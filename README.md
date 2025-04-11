@@ -26,7 +26,7 @@ Setup
     Clone the Repository
 
 git clone <https://github.com/kyrousisi/bigcartel-to-elta-web-labeling>
-cd <bigcartel-to-elta-web-labeling>
+cd bigcartel-to-elta-web-labeling
 
 Install Dependencies
 

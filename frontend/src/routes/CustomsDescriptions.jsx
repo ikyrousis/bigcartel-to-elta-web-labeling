@@ -26,41 +26,40 @@ function CustomsDescriptions() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>📝 Enter Customs Description Categories</h2>
+    <div className="page-wrapper">
+      <div className="centered-container">
+        <h2>📝 Enter Customs Description Categories</h2>
+        
+        <div className="input-group" style={{ maxWidth: '500px', margin: '2rem auto' }}>
+          <input
+            placeholder="e.g. Accessory, T-Shirt"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+          />
+          <button 
+            onClick={handleAdd}
+            className="add-button"
+            style={{ marginTop: '1rem' }}
+          >
+            Add Description
+          </button>
+        </div>
 
-      <input
-        placeholder="e.g. Accessory, T-Shirt"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        style={{ marginRight: '1rem' }}
-      />
+        <div className="descriptions-list">
+          {customsDescriptions.map((desc, index) => (
+            <div key={index} className="description-item">
+              {desc}
+            </div>
+          ))}
+        </div>
 
-      <div style={{ marginTop: '1rem' }}>
-        <button onClick={handleAdd} style={{ ...buttonStyle, marginRight: '1rem' }}>Add Description</button>
-      </div>
-
-      <ul>
-        {customsDescriptions.map((desc, index) => (
-          <li key={index}>{desc}</li>
-        ))}
-      </ul>
-
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-        <button onClick={handleBack} style={buttonStyle}>Back</button>
-        <button onClick={handleNext} style={buttonStyle}>Next</button>
+        <div className="button-group">
+          <button onClick={handleBack}>Back</button>
+          <button onClick={handleNext}>Next</button>
+        </div>
       </div>
     </div>
   );
 }
-
-const buttonStyle = {
-  padding: '0.5rem 1rem',
-  fontSize: '1rem',
-  borderRadius: '6px',
-  border: '1px solid #ccc',
-  background: '#f9f9f9',
-  cursor: 'pointer'
-};
 
 export default CustomsDescriptions;

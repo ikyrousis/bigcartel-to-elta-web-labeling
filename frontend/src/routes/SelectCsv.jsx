@@ -26,10 +26,22 @@ function SelectCsv() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>📂 Select your BigCartel orders export file</h2>
-      <input type="file" accept=".csv" onChange={handleFileChange} />
-      <p>{fileName}</p>
+    <div className="page-wrapper">
+      <div className="centered-container select-csv-container">
+        <h2>📂 Select your BigCartel orders export file</h2>
+        <div className="file-input-wrapper">
+          <label className="custom-file-input">
+            <input 
+              type="file" 
+              accept=".csv" 
+              onChange={handleFileChange}
+              className="hidden-file-input" 
+            />
+            <span className="file-input-button">Choose CSV File</span>
+            <span className="file-input-text">{fileName || "No file chosen"}</span>
+          </label>
+        </div>
+      </div>
     </div>
   );
 }

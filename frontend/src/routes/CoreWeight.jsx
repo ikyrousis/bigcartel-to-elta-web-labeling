@@ -26,18 +26,24 @@ function CoreWeight() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>📦 Core Packaging Weight</h2>
-      <input
-        type="number"
-        step="0.01"
-        placeholder="e.g. 0.15"
-        value={weight}
-        onChange={(e) => setWeight(e.target.value)}
-      />
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-        <button onClick={handleBack}>Back</button>
-        <button onClick={handleNext}>Next</button>
+    <div className="page-wrapper">
+      <div className="centered-container">
+        <h2>📦 Core Packaging Weight</h2>
+        
+        <div className="input-group" style={{ maxWidth: '300px', margin: '2rem auto' }}>
+          <input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 0.15"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+          />
+        </div>
+        
+        <div className="button-group">
+          <button onClick={handleBack}>Back</button>
+          <button onClick={handleNext}>Next</button>
+        </div>
       </div>
     </div>
   );

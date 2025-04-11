@@ -49,27 +49,34 @@ function MapProducts() {
   };
 
   return (
-    <div style={{ padding: '2rem' }}>
-      <h2>🔗 Match Products to Customs Descriptions</h2>
-
-      {uniqueProducts.map(product => (
-        <div key={product} style={{ marginBottom: '1rem' }}>
-          <label><strong>{product}</strong></label>
-          <select
-            value={mapping[product] || ''}
-            onChange={(e) => handleSelect(product, e.target.value)}
-          >
-            <option value="" disabled>Select category</option>
-            {customsDescriptions.map((desc, i) => (
-              <option key={i} value={desc}>{desc}</option>
-            ))}
-          </select>
+    <div className="page-wrapper">
+      <div className="centered-container">
+        <h2>🔗 Match Products to Customs Descriptions</h2>
+        
+        <div className="mapping-container">
+          {uniqueProducts.map(product => (
+            <div key={product} className="mapping-item">
+              <label className="mapping-label"><strong>{product}</strong></label>
+              <select
+                className="mapping-select"
+                value={mapping[product] || ''}
+                onChange={(e) => handleSelect(product, e.target.value)}
+              >
+                <option value="" disabled>Select category</option>
+                {customsDescriptions.map((desc, i) => (
+                  <option key={i} value={desc}>{desc}</option>
+                ))}
+              </select>
+            </div>
+          ))}
         </div>
-      ))}
 
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
-        <button onClick={handleBack}>Back</button>
-        <button onClick={handleFinish}>Run Label Generator</button>
+        <div className="button-group">
+          <button onClick={handleBack}>Back</button>
+          <button onClick={handleFinish} className="primary-button">
+            Run Label Generator
+          </button>
+        </div>
       </div>
     </div>
   );

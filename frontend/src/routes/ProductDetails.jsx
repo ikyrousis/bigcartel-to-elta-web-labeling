@@ -39,71 +39,41 @@ function ProductDetails() {
   };
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        width: '100%',
-      }}
-    >
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '600px',
-          padding: '2rem',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
+    <div className="page-wrapper">
+      <div className="centered-container">
         <h2>📦 Enter Weight & Value for Products</h2>
-  
-        {uniqueProducts.map((product) => (
-          <div
-            key={product}
-            style={{
-              marginBottom: '1rem',
-              width: '100%',
-            }}
-          >
-            <strong>{product}</strong>
-            <div
-              style={{
-                display: 'flex',
-                gap: '1rem',
-                width: '100%',
-              }}
-            >
-              <input
-                placeholder="Weight (kg)"
-                type="number"
-                step="0.01"
-                style={{ flex: 1 }}
-                value={form[product]?.weight || ''}
-                onChange={(e) => handleChange(product, 'weight', e.target.value)}
-              />
-              <input
-                placeholder="Customs Value (€)"
-                type="number"
-                step="0.01"
-                style={{ flex: 1 }}
-                value={form[product]?.customsValue || ''}
-                onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
-              />
+        
+        <div className="product-details-container">
+          {uniqueProducts.map((product) => (
+            <div key={product} className="product-input-group">
+              <h3>{product}</h3>
+              <div className="input-row">
+                <input
+                  placeholder="Weight (kg)"
+                  type="number"
+                  step="0.01"
+                  value={form[product]?.weight || ''}
+                  onChange={(e) => handleChange(product, 'weight', e.target.value)}
+                />
+                <input
+                  placeholder="Customs Value (€)"
+                  type="number"
+                  step="0.01"
+                  value={form[product]?.customsValue || ''}
+                  onChange={(e) => handleChange(product, 'customsValue', e.target.value)}
+                />
+              </div>
             </div>
-          </div>
-        ))}
-  
-        <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem' }}>
+          ))}
+        </div>
+        
+        <div className="button-group">
           <button onClick={handleBack}>Back</button>
           <button onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>
-  );  
+  ); 
 }
 
 export default ProductDetails;
