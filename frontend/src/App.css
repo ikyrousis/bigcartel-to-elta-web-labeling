@@ -343,3 +343,29 @@ select {
     padding: 0 1rem;
   }
 }
+
+.product-details-scrollable {
+  display: flex;
+  flex-direction: column;
+  max-height: 80vh; /* 80% of viewport height */
+  padding-bottom: 80px; /* Space for fixed buttons */
+}
+
+.product-details-container {
+  overflow-y: auto; /* Enable vertical scrolling */
+  flex-grow: 1;
+  padding: 0 1rem;
+}
+
+.button-group-fixed {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 1rem 0;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  border-top: 1px solid #eee;
+  margin-top: auto; /* Pushes to bottom */
+}
