@@ -1,5 +1,5 @@
 /* =============================================
-   GLOBAL BASE STYLES & LAYOUT FRAMEWORK
+   Core layout and global defaults
    ============================================= 
 
    These styles form the foundation for all app screens. */
@@ -46,7 +46,7 @@
   text-align: center;
 }
 
-/* Button Styles */
+/* Button group and base button styles */
 .button-group {
   display: flex;
   justify-content: center;
@@ -72,7 +72,7 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Accessible focus indicators */
+/* Focus states for interactive elements */
 button:focus,
 input:focus,
 button:focus-visible, 
@@ -82,11 +82,11 @@ input:focus-visible {
   box-shadow: none;
 }
 
-/* ======================
-   CSV FILE INPUT COMPONENTS 
-   ====================== */
-   
-/* Wrapper for the entire file input component */
+
+/* ==============================================
+   CSV file input component
+   ============================================== */
+
 .file-input-wrapper {
   margin: 2rem 0;
   width: 100%;
@@ -128,10 +128,8 @@ input:focus-visible {
 
 
 /* ==============================================
-   PRODUCT DETAILS SCREEN COMPONENTS
-   ==============================================
-
-   Styles for the product weight/value entry form */
+   Product weight/value entry form
+   ============================================== */
 
 /* Main scrollable container*/
 .product-details-scrollable {
@@ -175,8 +173,38 @@ input:focus-visible {
 
 
 /* ==============================================
-   CUSTOMS DESCRIPTIONS SCREEN STYLES
+   Packaging weight input component
    ============================================== */
+
+.core-weight-input {
+  position: relative;
+  max-width: 180px;
+  margin: 1.5rem auto;
+}
+
+.core-weight-input input {
+  width: 100%;
+  padding: 0.75rem 2rem 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1.1rem;
+  text-align: center;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #777;
+  pointer-events: none;
+}
+
+
+/* ==============================================
+   Customs description list component
+   ============================================== */
+
 .input-container {
   width: 100%;
   max-width: 500px;
@@ -233,7 +261,7 @@ input:focus-visible {
 
 
 /* ==============================================
-   PRODUCTS-DESCRIPTIONS MAPPING SCREEN STYLES
+   Product-description mapping component
    ============================================== */
 
 .mapping-container {
@@ -278,33 +306,4 @@ input:focus-visible {
   height: 1px;
   background-color: #eee;
   margin: 0.5rem 0;
-}
-
-
-/* ==============================================
-   CORE PACKAGING WEIGHT INPUT COMPONENT
-   ============================================== */
-
-.core-weight-input {
-  position: relative;
-  max-width: 180px;
-  margin: 1.5rem auto;
-}
-
-.core-weight-input input {
-  width: 100%;
-  padding: 0.75rem 2rem 0.75rem 1rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1.1rem;
-  text-align: center;
-}
-
-.input-suffix {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #777;
-  pointer-events: none;
 }
