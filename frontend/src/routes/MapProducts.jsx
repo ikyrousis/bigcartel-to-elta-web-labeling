@@ -53,26 +53,33 @@ function MapProducts() {
       <div className="centered-container">
         <h2>🔗 Match Products to Customs Descriptions</h2>
 
-        <div className="mapping-container">
-          {uniqueProducts.map((product, index) => (
-            <div key={product}>
-              <div className="mapping-item">
-                <span className="mapping-product" style={{ textAlign: 'left' }}>{product}</span>
-                <select
-                  className="mapping-select"
-                  value={mapping[product] || ''}
-                  onChange={(e) => handleSelect(product, e.target.value)}
-                >
-                  <option value="" disabled>Select category</option>
-                  {customsDescriptions.map((desc, i) => (
-                    <option key={i} value={desc}>{desc}</option>
-                  ))}
-                </select>
-              </div>
-              {index < uniqueProducts.length - 1 && <div className="mapping-divider" />}
-            </div>
-          ))}
-        </div>
+          <table className="product-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Customs Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {uniqueProducts.map((product) => (
+                <tr key={product}>
+                  <td>{product}</td>
+                  <td>
+                    <select
+                      className="mapping-select"
+                      value={mapping[product] || ''}
+                      onChange={(e) => handleSelect(product, e.target.value)}
+                    >
+                      <option value="" disabled>Select category</option>
+                      {customsDescriptions.map((desc, i) => (
+                        <option key={i} value={desc}>{desc}</option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
         <div className="button-group">
           <button onClick={handleBack}>Back</button>

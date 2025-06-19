@@ -156,15 +156,6 @@ input:focus-visible {
   border-radius: 4px;
 }
 
-/* Main scrollable container*/
-.product-details-scrollable {
-  display: flex;
-  flex-direction: column;
-  max-height: 100%;
-  /* 80% of viewport height */
-  padding-bottom: 80px;
-}
-
 /* Scrollable content area within container */
 .product-details-container {
   width: 100%;
@@ -288,16 +279,6 @@ input:focus-visible {
 /* ==============================================
    Product-description mapping component
    ============================================== */
-
-.mapping-container {
-  width: 100%;
-  max-width: 600px;
-  margin: 2rem auto;
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
 
 .mapping-item {
   display: flex;

@@ -40,7 +40,7 @@ function ProductDetails() {
 
   return (
     <div className="page-wrapper">
-      <div className="centered-container product-details-scrollable">
+      <div className="centered-container">
         <h2>📦 Enter Weight & Value for Products</h2>
   
         <table className="product-table">
