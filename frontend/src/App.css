@@ -156,14 +156,6 @@ input:focus-visible {
   border-radius: 4px;
 }
 
-/* Scrollable content area within container */
-.product-details-container {
-  width: 100%;
-  overflow-y: auto;
-  /* Enable vertical scrolling */
-  flex-grow: 1;
-  padding: 0 1rem;
-}
 
 /* Grouping for individual product inputs */
 .product-input-group {
@@ -289,23 +281,6 @@ input:focus-visible {
    Product-description mapping component
    ============================================== */
 
-.mapping-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem 0;
-  gap: 1rem;
-}
-
-.mapping-product {
-  font-weight: 600;
-  color: #333;
-  flex: 1;
-  min-width: 150px;
-  text-align: left;
-  padding-right: 1rem;
-}
-
 .mapping-select {
   flex: 1;
   padding: 0.75rem;
@@ -315,10 +290,4 @@ input:focus-visible {
   font-size: 1rem;
   min-width: 200px;
   max-width: 300px;
-}
-
-.mapping-divider {
-  height: 1px;
-  background-color: #eee;
-  margin: 0.5rem 0;
 }
