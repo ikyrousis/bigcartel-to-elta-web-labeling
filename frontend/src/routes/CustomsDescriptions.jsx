@@ -30,19 +30,22 @@ function CustomsDescriptions() {
       <div className="centered-container">
         <h2>📝 Enter Customs Description Categories</h2>
 
-        <div className="input-container">
-          <input
-            placeholder="e.g. Accessory, T-Shirt"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            className="description-input"
-          />
-          <button
-            onClick={handleAdd}
-            className="add-button"
-          >
-            Add Description
-          </button>
+        <div className="input-with-button">
+          <div className="input-button-wrapper">
+            <input
+              placeholder="e.g. Accessory, T-Shirt"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              className="description-input"
+              onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
+            />
+            <button
+              onClick={handleAdd}
+              className="embedded-add-button"
+            >
+              +
+            </button>
+          </div>
         </div>
 
         <div className="descriptions-list">
