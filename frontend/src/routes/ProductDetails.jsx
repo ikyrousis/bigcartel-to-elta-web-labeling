@@ -43,39 +43,48 @@ function ProductDetails() {
       <div className="centered-container product-details-scrollable">
         <h2>📦 Enter Weight & Value for Products</h2>
   
-        <div className="product-details-container">
-          {uniqueProducts.map((product) => (
-            <div key={product} className="product-input-group">
-              <h3>{product}</h3>
-              <div className="input-row">
-                <input
-                  placeholder="Weight (kg)"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  className="product-input" // Added class
-                  value={form[product]?.weight || ''}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    handleChange(product, 'weight', val >= 0 ? e.target.value : '');
-                  }}
-                />
-                <input
-                  placeholder="Customs Value (€)"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  className="product-input" // Added class
-                  value={form[product]?.customsValue || ''}
-                  onChange={(e) => {
-                    const val = parseFloat(e.target.value);
-                    handleChange(product, 'customsValue', val >= 0 ? e.target.value : '');
-                  }}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+        <table className="product-table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Weight (kg)</th>
+              <th>Customs Value (€)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {uniqueProducts.map((product) => (
+              <tr key={product}>
+                <td>{product}</td>
+                <td>
+                  <input
+                    placeholder="Weight (kg)"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form[product]?.weight || ''}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      handleChange(product, 'weight', val >= 0 ? e.target.value : '');
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    placeholder="Customs Value (€)"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    value={form[product]?.customsValue || ''}
+                    onChange={(e) => {
+                      const val = parseFloat(e.target.value);
+                      handleChange(product, 'customsValue', val >= 0 ? e.target.value : '');
+                    }}
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
   
         <div className="button-group">
           <button className="nav-button" onClick={handleBack}>Back</button>
