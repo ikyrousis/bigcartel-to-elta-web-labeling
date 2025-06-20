@@ -48,13 +48,20 @@ function CustomsDescriptions() {
           </div>
         </div>
 
-        <div className="descriptions-list">
-          {customsDescriptions.map((desc, index) => (
-            <div key={index} className="description-item">
-              {desc}
-            </div>
-          ))}
-        </div>
+        <table className="descriptions-table">
+          <thead>
+            <tr>
+              <th>Customs Descriptions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {customsDescriptions.map((desc, index) => (
+              <tr key={index} className="description-row">
+                <td>{desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
         <div className="button-group">
           <button onClick={handleBack}>Back</button>
