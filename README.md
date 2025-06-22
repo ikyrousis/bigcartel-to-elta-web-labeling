@@ -24,13 +24,14 @@ Prerequisites
 Setup
 
     Clone the Repository
-
-git clone <https://github.com/kyrousisi/bigcartel-to-elta-web-labeling>
-cd bigcartel-to-elta-web-labeling
+    git clone https://github.com/ikyrousis/bigcartel-to-elta-web-labeling
+    cd bigcartel-to-elta-web-labeling
 
 Install Dependencies
 
-npm install
+    npm install
+    npm install puppeteer@23.3.1
+    cd frontend && npm install
 
 Edit the .env file in the root of the project directory and replace the corresponding sender information:
 
@@ -50,14 +51,15 @@ Running the Application (Development)
 
 To start the app in development mode:
 
-npm run dev
+    npm run start:react
+    npm run start:electron
 
 This will open the Electron window and start the React frontend with hot reloading.
-Building a Production Executable
 
+Building a Production Executable
 To compile the app into a standalone .exe or platform-specific binary:
 
-npm run build
+    npm run build
 
 Follow the output instructions to locate the generated files.
 Usage
