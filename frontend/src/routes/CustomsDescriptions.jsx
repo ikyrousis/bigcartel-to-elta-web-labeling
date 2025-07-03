@@ -52,12 +52,25 @@ function CustomsDescriptions() {
           <thead>
             <tr>
               <th>Customs Descriptions</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {customsDescriptions.map((desc, index) => (
               <tr key={index} className="description-row">
                 <td>{desc}</td>
+                <td>
+                  <button 
+                    onClick={() => {
+                      const updated = [...customsDescriptions];
+                      updated.splice(index, 1);
+                      setCustomsDescriptions(updated);
+                    }}
+                    className="delete-button"
+                  >
+                    ×
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
