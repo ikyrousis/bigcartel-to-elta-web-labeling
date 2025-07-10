@@ -17,7 +17,7 @@ function formatWeightForInput(totalWeight) {
 }
 
 //Normalize and clean text input
-function normalizeText(inputText) {
+function normalizeSpecialCharacters(inputText) {
     //First convert the text to ASCII equivalents, then replace all apostrophes with spaces
     return unidecode(inputText).replace(/'/g, ' ');
 }
@@ -26,5 +26,5 @@ function normalizeText(inputText) {
 module.exports = {
     cleanPhoneNumber,
     formatWeightForInput,
-    normalizeText
+    normalizeSpecialCharacters: normalizeSpecialCharacters
   };

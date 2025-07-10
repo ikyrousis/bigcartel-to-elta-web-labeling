@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
 const puppeteer = require('puppeteer');
-const { cleanPhoneNumber, normalizeText, formatWeightForInput } = require('./formatters');
+const { cleanPhoneNumber, normalizeSpecialCharacters, formatWeightForInput } = require('./formatters');
 const { countryCodeToName, stateAbbreviations } = require('./regionMappings');
 require('dotenv').config();
 
@@ -181,21 +181,21 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     //Wait for the process to complete
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    await page.type('input[name="RecipientFirstName"]', normalizeText(order.firstName));
-    await page.type('input[name="RecipientLastName"]', normalizeText(order.lastName));
-    await page.type('input[name="RecipientStreetName"]', normalizeText(order.addressRest));
+    await page.type('input[name="RecipientFirstName"]', normalizeSpecialCharacters(order.firstName));
+    await page.type('input[name="RecipientLastName"]', normalizeSpecialCharacters(order.lastName));
+    await page.type('input[name="RecipientStreetName"]', normalizeSpecialCharacters(order.addressRest));
     await page.type('input[name="RecipientStreetNumber"]', order.addressNumber);
-    await page.type('input[name="RecipientStreetSpecification"]', normalizeText(order.streetSpecification));
+    await page.type('input[name="RecipientStreetSpecification"]', normalizeSpecialCharacters(order.streetSpecification));
     if (order.country == 'US') {
         //Format the postal code to ensure it is 5 digits long
         const formattedPostalCode = order.zip.padStart(5, '0');
 
-        await page.type('input[name="RecipientPostalCode"]', stateAbbreviations[normalizeText(order.state)] + ' ' + normalizeText(formattedPostalCode));
-        await page.type('input[name="RecipientTown"]', normalizeText(order.city));
+        await page.type('input[name="RecipientPostalCode"]', stateAbbreviations[normalizeSpecialCharacters(order.state)] + ' ' + normalizeSpecialCharacters(formattedPostalCode));
+        await page.type('input[name="RecipientTown"]', normalizeSpecialCharacters(order.city));
     }
     else {
-        await page.type('input[name="RecipientPostalCode"]', normalizeText(order.zip));
-        await page.type('input[name="RecipientTown"]', normalizeText(order.city) + ' ' + normalizeText(order.state));
+        await page.type('input[name="RecipientPostalCode"]', normalizeSpecialCharacters(order.zip));
+        await page.type('input[name="RecipientTown"]', normalizeSpecialCharacters(order.city) + ' ' + normalizeSpecialCharacters(order.state));
     }
     await page.type('input[name="RecipientTelephone"]', order.phone);
 
