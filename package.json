@@ -8,7 +8,13 @@
     "start:react": "cd frontend && npm run dev",
     "start:electron": "wait-on http://localhost:5173 && cross-env NODE_ENV=development electron .",
     "dev": "concurrently -k \"npm run start:react\" \"npm run start:electron\"",
-    "build": "cd frontend && npm run build && electron-builder"
+    "build": "npm run build:frontend && npm run build:electron",
+    "build:frontend": "cd frontend && npm install && npm run build",
+    "build:electron": "electron-builder",
+    "build:win": "npm run build:frontend && electron-builder --win",
+    "build:mac": "npm run build:frontend && electron-builder --mac",
+    "build:linux": "npm run build:frontend && electron-builder --linux",
+    "dist": "npm run build"
   },
   "keywords": [],
   "author": "",
@@ -29,20 +35,55 @@
   },
   "build": {
     "appId": "com.yourdomain.orderprocessor",
+    "productName": "Elta Shipping Label Generator",
+    "directories": {
+      "output": "dist",
+      "buildResources": "assets"
+    },
     "files": [
       "main.js",
       "preload.js",
+      "package.json",
       "backend/**/*",
-      "frontend/dist/**/*"
+      "frontend/dist/**/*",
+      "node_modules/**/*",
+      "!node_modules/**/*.map",
+      "!**/node_modules/*/{CHANGELOG.md,README.md,README,readme.md,readme}",
+      "!**/node_modules/*/{test,__tests__,tests,powered-test,example,examples}",
+      "!**/node_modules/*.d.ts",
+      "!**/node_modules/.bin",
+      "!**/*.{iml,o,hprof,orig,pyc,pyo,rbc,swp,csproj,sln,xproj}",
+      "!.editorconfig",
+      "!**/._*",
+      "!**/{.DS_Store,.git,.hg,.svn,CVS,RCS,SCCS,.gitignore,.gitattributes}",
+      "!**/{__pycache__,thumbs.db,.flowconfig,.idea,.vs,.nyc_output}",
+      "!**/{appveyor.yml,.travis.yml,circle.yml}",
+      "!**/{npm-debug.log,yarn.lock,.yarn-integrity,.yarn-metadata.json}"
     ],
     "extraResources": [
-      "orders.csv"
+      {
+        "from": "backend/data",
+        "to": "backend/data",
+        "filter": ["**/*"]
+      }
     ],
-    "directories": {
-      "buildResources": "assets"
-    },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "assets/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
     }
   }
 }
