@@ -65,6 +65,10 @@
         "from": "backend/data",
         "to": "backend/data",
         "filter": ["**/*"]
+      },
+      {
+        "from": ".env",
+        "to": ".env"
       }
     ],
     "win": {

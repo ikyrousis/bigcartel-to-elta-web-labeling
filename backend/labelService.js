@@ -4,7 +4,6 @@ const csv = require('csv-parser');
 const puppeteer = require('puppeteer');
 const { cleanPhoneNumber, normalizeSpecialCharacters, formatWeightForInput } = require('./formatters');
 const { countryCodeToName, stateAbbreviations } = require('./regionMappings');
-require('dotenv').config();
 
 //Read orders from CSV and process them
 async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {

@@ -2,7 +2,18 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
-require('dotenv').config();
+const dotenv = require('dotenv');
+
+// Configure dotenv to work in both development and production
+const envPath = path.join(process.resourcesPath, '.env');
+const devEnvPath = path.join(__dirname, '.env');
+
+// Try to load from production path first, fallback to development
+try {
+  dotenv.config({ path: fs.existsSync(envPath) ? envPath : devEnvPath });
+} catch (error) {
+  console.warn('Could not load .env file:', error.message);
+}
 
 const { runPuppeteerWithData } = require('./backend/labelService');
 
@@ -10,7 +21,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
-    title: 'Shipping Label Generator',
+    title: 'Elta Shipping Label Generator',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
