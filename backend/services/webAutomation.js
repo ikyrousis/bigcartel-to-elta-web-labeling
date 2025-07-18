@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
-const { normalizeSpecialCharacters, formatWeightForInput } = require('../formatters');
-const { countryCodeToName, stateAbbreviations } = require('../regionMappings');
+const { normalizeSpecialCharacters, formatWeightForInput } = require('../lib/formatters');
+const { countryCodeToName, stateAbbreviations } = require('../lib/regionMappings');
 
 async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
     //Navigate to the 'New Voucher' page
@@ -14,7 +14,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     await page.click("[aria-labelledby='select2-CountryCode-container']").catch(e => console.error("Error clicking the element:", e.message));
 
     //Use the countryCodeToName mapping to get the full country name
-    const countryFullName = countryCodeToName[order.country]; //|| order.country;
+    const countryFullName = countryCodeToName[order.country]; 
 
     //Wait for the dropdown to open and input field to be available
     await page.waitForSelector('.select2-search--dropdown .select2-search__field');

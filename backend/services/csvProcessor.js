@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const { cleanPhoneNumber } = require('../formatters');
+const { cleanPhoneNumber } = require('../lib/formatters');
 const { processOrder } = require('./webAutomation');
 
 //Read orders from CSV and process them

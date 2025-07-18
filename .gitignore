@@ -32,9 +32,6 @@ jspm_packages/
 # Coverage directory used by testing frameworks
 coverage/
 
-# Compiled source (e.g., TypeScript, CoffeeScript)
-lib/
-
 # IDE or Editor directories and settings
 .vscode/
 .idea/
