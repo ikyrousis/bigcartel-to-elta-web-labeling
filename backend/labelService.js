@@ -279,6 +279,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
 }
 
 async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToDescription }) {
+    const { app } = require('electron');
     const browser = await puppeteer.launch({
         headless: false,
         protocolTimeout: 0 // disable timeout completely
@@ -286,10 +287,24 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
     const page = await browser.newPage();
 
     try {
+        // Get the appropriate download directory
+        let downloadDir;
+        if (process.env.NODE_ENV === 'development') {
+            downloadDir = path.resolve(__dirname, '..');
+        } else {
+            // In production, use user's Downloads folder
+            downloadDir = path.join(app.getPath('downloads'), 'Elta Shipping Labels');
+        }
+
+        // Ensure the directory exists
+        if (!fs.existsSync(downloadDir)) {
+            fs.mkdirSync(downloadDir, { recursive: true });
+        }
+
         const client = await page.target().createCDPSession();
         await client.send('Page.setDownloadBehavior', {
             behavior: 'allow',
-            downloadPath: path.resolve(__dirname, '..'),
+            downloadPath: downloadDir,
         });
 
         await page.goto('https://weblabeling.elta.gr/en-GB/Account/NCLogin', { waitUntil: 'domcontentloaded' });
