@@ -1,4 +1,4 @@
-//Country codes mapped to country names for easy reference
+//Country codes mapped to country names 
 const countryCodeToName = {
     'CA': 'Canada',
     'US': 'United States',

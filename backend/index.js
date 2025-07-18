@@ -1,5 +1,5 @@
-const { readCsvAndProcessOrders } = require('./services/csvProcessor');
-const { processOrder, runPuppeteerWithData } = require('./services/webAutomation');
+const { readCsvAndProcessOrders } = require('./services/big-cartel-order-service');
+const { processOrder, runPuppeteerWithData } = require('./services/elta-dom-service');
 
 module.exports = {
     readCsvAndProcessOrders,

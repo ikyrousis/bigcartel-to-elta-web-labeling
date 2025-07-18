@@ -1,8 +1,8 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const fs = require('fs');
-const { normalizeSpecialCharacters, formatWeightForInput } = require('../lib/formatters');
-const { countryCodeToName, stateAbbreviations } = require('../lib/regionMappings');
+const { normalizeSpecialCharacters, formatWeightForInput } = require('../lib/text-formatter');
+const { countryCodeToName, stateAbbreviations } = require('../lib/region-mapping');
 
 async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
     //Navigate to the 'New Voucher' page
@@ -204,7 +204,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
 
         console.log("productToDescription:", productToDescription);
 
-        const { readCsvAndProcessOrders } = require('./csvProcessor');
+        const { readCsvAndProcessOrders } = require('./big-cartel-order-service');
         await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvPath);
     } catch (err) {
         console.error('❌ Puppeteer failed:', err);

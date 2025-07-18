@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
 const csv = require('csv-parser');
-const { cleanPhoneNumber } = require('../lib/formatters');
-const { processOrder } = require('./webAutomation');
+const { cleanPhoneNumber } = require('../lib/text-formatter');
+const { processOrder } = require('./elta-dom-service');
 
 //Read orders from CSV and process them
 async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {
