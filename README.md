@@ -1,83 +1,113 @@
-BigCartel to ELTA Web Labeling
+# BigCartel to ELTA Web Labeling
 
 This application automates the process of creating shipping labels on the ELTA web portal using order data exported from BigCartel. It provides a graphical user interface (GUI) for entering product and customs information and uses Puppeteer to handle browser automation for label generation.
-Technologies Used
 
-    Node.js (backend logic)
+## Technologies Used
+- Node.js (backend logic)
+- React (frontend UI)
+- Electron (desktop application shell)
+- Puppeteer (browser automation)
+- csv-parser (CSV reading)
+- dotenv (environment variables)
 
-    React (frontend UI)
+## Prerequisites
+- Node.js installed (version 20+ recommended)
+- npm or yarn
 
-    Electron (desktop application shell)
+## Setup
 
-    Puppeteer (browser automation)
+### 1. Clone the Repository
+```bash
+git clone https://github.com/ikyrousis/bigcartel-to-elta-web-labeling
+cd bigcartel-to-elta-web-labeling
+```
 
-    csv-parser (CSV reading)
+### 2. Install Dependencies
+```bash
+npm install
+npm install puppeteer@23.3.1
+cd frontend && npm install
+```
 
-    dotenv (environment variables)
+### 3. Environment Configuration
+Edit the `.env` file in the root of the project directory and replace the corresponding sender information:
 
-Prerequisites
+```env
+EMAIL_ADDRESS=you@example.com
+SENDER_FIRST_NAME=YourFirstName
+SENDER_LAST_NAME=YourLastName
+SENDER_STREET_NAME=StreetName
+SENDER_STREET_NUMBER=123
+SENDER_STREET_SPECIFICATION=
+SENDER_POSTAL_CODE=10000
+SENDER_TOWN=Athens
+```
 
-    Node.js installed (version 16+ recommended)
+### 4. Prepare Your Data
+Export your orders from BigCartel and save the CSV locally. You'll select this file through the app interface.
 
-    npm or yarn
+## Running the Application
 
-Setup
-
-    Clone the Repository
-    git clone https://github.com/ikyrousis/bigcartel-to-elta-web-labeling
-    cd bigcartel-to-elta-web-labeling
-
-Install Dependencies
-
-    npm install
-    npm install puppeteer@23.3.1
-    cd frontend && npm install
-
-Edit the .env file in the root of the project directory and replace the corresponding sender information:
-
-    EMAIL_ADDRESS=you@example.com
-    SENDER_FIRST_NAME=YourFirstName
-    SENDER_LAST_NAME=YourLastName
-    SENDER_STREET_NAME=StreetName
-    SENDER_STREET_NUMBER=123
-    SENDER_STREET_SPECIFICATION=
-    SENDER_POSTAL_CODE=10000
-    SENDER_TOWN=Athens
-
-
-Export your orders from BigCartel and save the CSV locally. You’ll select this file through the app interface.
-
-Running the Application (Development)
-
+### Development Mode
 To start the app in development mode:
-
-    npm run start:react
-    npm run start:electron
+```bash
+npm run dev
+```
 
 This will open the Electron window and start the React frontend with hot reloading.
 
-Building a Production Executable
-To compile the app into a standalone .exe or platform-specific binary:
+### Production Build
+To compile the app into a standalone executable:
+```bash
+npm run build
+```
 
-    npm run build
+Follow the output instructions to locate the generated files in the `dist` folder.
 
-Follow the output instructions to locate the generated files.
-Usage
+## Usage
 
-    Launch the app.
+1. **Launch the app**
+2. **Browse for your orders.csv file**
+3. **Input weight and customs value** for each unique product
+4. **Enter the core packaging weight**
+5. **Define customs description categories**
+6. **Assign each product to a category**
+7. **Click "Run Label Generator"**
+8. **Log in to the ELTA portal** when the browser opens, solve the CAPTCHA
+9. **The application will automatically fill in the form and generate the labels**
 
-    Browse for your orders.csv file.
+## Where Labels Are Saved
 
-    Input weight and customs value for each unique product.
+### Development Mode
+- Labels are saved to the project root directory
 
-    Enter the core packaging weight.
+### Production Mode
+- Labels are saved to your system's Downloads folder in a dedicated subfolder:
+  - **Windows**: `C:\Users\[username]\Downloads\Elta Shipping Labels\`
+  - **macOS**: `~/Downloads/Elta Shipping Labels/`
+  - **Linux**: `~/Downloads/Elta Shipping Labels/`
 
-    Define any number of customs description categories (e.g. "T-shirt", "Hat", etc).
+## Build Targets
+The application supports building for multiple platforms:
+- **Windows**: `.exe` installer
+- **macOS**: `.dmg` package
+- **Linux**: `.AppImage` executable
 
-    Assign each product to one of the categories.
+### Puppeteer Version
+Ensure you're using Puppeteer version 23.3.1:
+```bash
+npm install puppeteer@23.3.1
+```
 
-    Click Run Label Generator.
+### Environment Variables
+Make sure your `.env` file is properly configured with all required sender information.
 
-    Log in to the ELTA portal when the browser opens, solve the CAPTCHA.
+### File Permissions
+In production mode, the app automatically creates the necessary download directory with appropriate permissions.
 
-    The application will automatically fill in the form and generate the labels.
+## Development Scripts
+- `npm run dev` - Start development mode with hot reload
+- `npm run build` - Build production executable
+- `npm run build:win` - Build for Windows only
+- `npm run build:mac` - Build for macOS only
+- `npm run build:linux` - Build for Linux only
