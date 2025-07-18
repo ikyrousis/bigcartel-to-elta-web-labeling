@@ -26,5 +26,5 @@ function normalizeSpecialCharacters(inputText) {
 module.exports = {
     cleanPhoneNumber,
     formatWeightForInput,
-    normalizeSpecialCharacters: normalizeSpecialCharacters
+    normalizeSpecialCharacters
   };

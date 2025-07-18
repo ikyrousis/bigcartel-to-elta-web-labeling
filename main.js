@@ -15,7 +15,7 @@ try {
   console.warn('Could not load .env file:', error.message);
 }
 
-const { runPuppeteerWithData } = require('./backend/labelService');
+const { runPuppeteerWithData } = require('./backend');
 
 function createWindow() {
   const win = new BrowserWindow({

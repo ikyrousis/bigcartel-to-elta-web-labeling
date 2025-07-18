@@ -1,123 +1,8 @@
-const fs = require('fs');
-const path = require('path');
-const csv = require('csv-parser');
 const puppeteer = require('puppeteer');
-const { cleanPhoneNumber, normalizeSpecialCharacters, formatWeightForInput } = require('./formatters');
-const { countryCodeToName, stateAbbreviations } = require('./regionMappings');
-
-//Read orders from CSV and process them
-async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {
-    const results = [];
-    const skippedOrders = [];
-  
-    return new Promise((resolve, reject) => {
-      fs.createReadStream(csvFilePath)
-        .pipe(csv())
-        .on('data', (data) => {
-          const postalCode = String(data['Shipping zip']);
-          let totalQuantity = 0;
-          let totalOrderValue = 0;
-  
-          const items = data['Items'].split(';').map(item => {
-            const parts = item.split('|');
-            const productPart = parts.find(p => p.startsWith('product_name'));
-            const productName = productPart ? productPart.split(':')[1] : 'Unknown';
-  
-            const quantityPart = parts.find(p => p.startsWith('quantity'));
-            const quantity = quantityPart ? parseInt(quantityPart.split(':')[1], 10) : 0;
-            totalQuantity += quantity;
-  
-            const itemPrice = parseFloat(productDetails[productName]?.customsValue || '0');
-            totalOrderValue += itemPrice * quantity;
-  
-            return { productName, quantity };
-          });
-  
-          const countriesWithNumberFirst = ['US', 'CA', 'GB', 'AU', 'NZ'];
-          let addressNumber, addressRest;
-  
-          if (countriesWithNumberFirst.includes(data['Shipping country'])) {
-            const addressParts = data['Shipping address 1'].split(' ');
-            if (/^\d+[A-Za-z]*/.test(addressParts[0])) {
-              addressNumber = addressParts.shift();
-              addressRest = addressParts.join(' ');
-            } else {
-              addressNumber = '-';
-              addressRest = data['Shipping address 1'];
-            }
-          } else {
-            addressNumber = '-';
-            addressRest = data['Shipping address 1'];
-          }
-  
-          const cleanedPhoneNumber = cleanPhoneNumber(data['Buyer phone number']);
-  
-          results.push({
-            firstName: data['Buyer first name'],
-            lastName: data['Buyer last name'],
-            country: data['Shipping country'],
-            addressNumber,
-            addressRest,
-            streetSpecification: data['Shipping address 2'],
-            city: data['Shipping city'],
-            state: data['Shipping state'],
-            zip: postalCode,
-            phone: cleanedPhoneNumber,
-            totalQuantity,
-            totalOrderValue,
-            items
-          });
-        })
-        .on('end', async () => {
-          console.log('CSV file processing started.');
-  
-          for (const order of results) {
-            try {
-              let totalWeight = parseFloat(corePackagingWeight);
-  
-              for (const item of order.items) {
-                const detail = productDetails[item.productName];
-                if (detail) {
-                  const weight = parseFloat(detail.weight);
-                  const quantity = parseInt(item.quantity, 10);
-                  totalWeight += weight * quantity;
-                }
-              }
-  
-              if (totalWeight > 2.0) {
-                skippedOrders.push({
-                  name: `${order.firstName} ${order.lastName}`,
-                  reason: `Total weight ${totalWeight.toFixed(2)}kg exceeds 2kg limit`
-                });
-                continue;
-              }
-  
-              await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
-              console.log(`✅ Processed: ${order.firstName} ${order.lastName}`);
-            } catch (error) {
-              skippedOrders.push({
-                name: `${order.firstName} ${order.lastName}`,
-                reason: `Error: ${error.message}`
-              });
-              console.error(`❌ Failed: ${order.firstName} ${order.lastName}`, error);
-            }
-          }
-  
-          if (skippedOrders.length > 0) {
-            const logContent = skippedOrders.map(o => `${o.name} — ${o.reason}`).join('\n');
-            fs.writeFileSync(path.join(__dirname, '..', 'skipped-orders.log'), logContent);
-            console.log(`⚠️ ${skippedOrders.length} order(s) skipped. See skipped-orders.log`);
-          }
-  
-          console.log('✅ CSV file processing completed.');
-          resolve();
-        })
-        .on('error', (error) => {
-          console.error('❌ Error reading the CSV file:', error);
-          reject(error);
-        });
-    });
-  }
+const path = require('path');
+const fs = require('fs');
+const { normalizeSpecialCharacters, formatWeightForInput } = require('../formatters');
+const { countryCodeToName, stateAbbreviations } = require('../regionMappings');
 
 async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
     //Navigate to the 'New Voucher' page
@@ -161,7 +46,6 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
 
     //Click the button by its id
     await page.click('#btnCreateVoucher');
-
 
     //Wait for the process to complete
     await new Promise(resolve => setTimeout(resolve, 2000));
@@ -290,7 +174,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         // Get the appropriate download directory
         let downloadDir;
         if (process.env.NODE_ENV === 'development') {
-            downloadDir = path.resolve(__dirname, '..');
+            downloadDir = path.resolve(__dirname, '..', '..');
         } else {
             // In production, use user's Downloads folder
             downloadDir = path.join(app.getPath('downloads'), 'Elta Shipping Labels');
@@ -320,6 +204,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
 
         console.log("productToDescription:", productToDescription);
 
+        const { readCsvAndProcessOrders } = require('./csvProcessor');
         await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvPath);
     } catch (err) {
         console.error('❌ Puppeteer failed:', err);
@@ -330,7 +215,6 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
 }
 
 module.exports = {
-    readCsvAndProcessOrders,
     processOrder,
     runPuppeteerWithData
 };
