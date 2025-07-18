@@ -3,12 +3,13 @@ const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
 const dotenv = require('dotenv');
+const { nativeTheme } = require('electron');
 
-// Configure dotenv to work in both development and production
+//Configure dotenv to work in both development and production
 const envPath = path.join(process.resourcesPath, '.env');
 const devEnvPath = path.join(__dirname, '.env');
 
-// Try to load from production path first, fallback to development
+//Try to load from production path first, fallback to development
 try {
   dotenv.config({ path: fs.existsSync(envPath) ? envPath : devEnvPath });
 } catch (error) {
@@ -18,6 +19,9 @@ try {
 const { runPuppeteerWithData } = require('./backend');
 
 function createWindow() {
+  //Forces light theme for the application regardless of the system's theme preference
+  nativeTheme.themeSource = 'light';
+
   const win = new BrowserWindow({
     width: 1000,
     height: 700,
@@ -48,7 +52,7 @@ app.on('activate', () => {
 });
 
 
-// 🟡 IPC: Run Puppeteer after all data collected
+//🟡 IPC: Run Puppeteer after all data collected
 ipcMain.handle('run-label-generator', async (event, userData) => {
   try {
     await runPuppeteerWithData(userData);
@@ -59,7 +63,7 @@ ipcMain.handle('run-label-generator', async (event, userData) => {
 });
 
 
-// 🟢 IPC: Parse CSV to extract unique product names
+//🟢 IPC: Parse CSV to extract unique product names
 ipcMain.handle('parse-csv', async (event, filePath) => {
   return new Promise((resolve, reject) => {
     const uniqueProducts = new Set();

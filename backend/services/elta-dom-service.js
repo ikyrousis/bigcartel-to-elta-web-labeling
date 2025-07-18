@@ -14,7 +14,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     await page.click("[aria-labelledby='select2-CountryCode-container']").catch(e => console.error("Error clicking the element:", e.message));
 
     //Use the countryCodeToName mapping to get the full country name
-    const countryFullName = countryCodeToName[order.country]; 
+    const countryFullName = countryCodeToName[order.country];
 
     //Wait for the dropdown to open and input field to be available
     await page.waitForSelector('.select2-search--dropdown .select2-search__field');
@@ -166,21 +166,21 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
     const { app } = require('electron');
     const browser = await puppeteer.launch({
         headless: false,
-        protocolTimeout: 0 // disable timeout completely
-      });      
+        protocolTimeout: 0 //disable timeout completely
+    });
     const page = await browser.newPage();
 
     try {
-        // Get the appropriate download directory
+        //Get the appropriate download directory
         let downloadDir;
         if (process.env.NODE_ENV === 'development') {
             downloadDir = path.resolve(__dirname, '..', '..');
         } else {
-            // In production, use user's Downloads folder
+            //In production, use user's Downloads folder
             downloadDir = path.join(app.getPath('downloads'), 'Elta Shipping Labels');
         }
 
-        // Ensure the directory exists
+        //Ensure the directory exists
         if (!fs.existsSync(downloadDir)) {
             fs.mkdirSync(downloadDir, { recursive: true });
         }
@@ -199,8 +199,8 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         await page.click('input[name="AgreedToTerms"]');
         console.log('✅ Form filled. Solve CAPTCHA...');
 
-        // Wait for CAPTCHA to be solved
-        await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); // waits indefinitely
+        //Wait for CAPTCHA to be solved
+        await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); //waits indefinitely
 
         console.log("productToDescription:", productToDescription);
 
@@ -208,7 +208,6 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvPath);
     } catch (err) {
         console.error('❌ Puppeteer failed:', err);
-        await page.screenshot({ path: 'puppeteer-error.png' });
     }
 
     await browser.close();
