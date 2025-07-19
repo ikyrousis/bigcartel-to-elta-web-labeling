@@ -213,7 +213,27 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
     await browser.close();
 }
 
+//Check for communication error modals and handle them as failures
+async function checkForCommunicationModal(page) {
+  try {
+    const okButton = await page.waitForSelector('button[data-bb-handler="ok"].btn.btn-primary', { 
+      timeout: 2000,
+      visible: true 
+    });
+    if (okButton) {
+      console.log('❌ Communication error modal detected - voucher generation failed');
+      await okButton.click();
+      await new Promise(resolve => setTimeout(resolve, 1500)); // Brief pause after click
+      return true; //Modal appeared, treat as failure
+    }
+    return false; //No modal found
+  } catch (error) {
+    return false; //Modal not found, continue normally
+  }
+}
+
 module.exports = {
     processOrder,
-    runPuppeteerWithData
+    runPuppeteerWithData,
+    checkForCommunicationModal
 };
