@@ -33,13 +33,13 @@ cd frontend && npm install
 Edit the `.env` file in the root of the project directory and replace the corresponding sender information:
 
 ```env
-EMAIL_ADDRESS=you@example.com
+EMAIL_ADDRESS=test@example.com
 SENDER_FIRST_NAME=YourFirstName
 SENDER_LAST_NAME=YourLastName
-SENDER_STREET_NAME=StreetName
+SENDER_STREET_NAME=MainStreet
 SENDER_STREET_NUMBER=123
-SENDER_STREET_SPECIFICATION=
-SENDER_POSTAL_CODE=10000
+SENDER_STREET_SPECIFICATION=TestSuburb
+SENDER_POSTAL_CODE=12345
 SENDER_TOWN=Athens
 ```
 

@@ -35,16 +35,16 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
     try {
       console.log(`🔄 Processing: ${order.firstName} ${order.lastName} (Attempt ${attempts}/${maxAttempts})`);
 
-      // Check if page is still valid before processing
+      //Check if page is still valid before processing
       if (!page || page.isClosed()) {
         browserClosed = true;
         throw new Error('Browser closed during processing');
       }
 
-      // Attempt to process the order
+      //Attempt to process the order
       await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
 
-      // Check if a communication modal appeared (indicating failure)
+      //Check if a communication modal appeared (indicating failure)
       const modalAppeared = await checkForCommunicationModal(page);
       if (modalAppeared) {
         throw new Error('Communication error modal appeared - voucher generation failed');
@@ -57,7 +57,7 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
     } catch (error) {
       lastError = error;
 
-      // Check if this is a browser closure error
+      //Check if this is a browser closure error
       if (error.message.includes('browser was closed') ||
         error.message.includes('target closed') ||
         error.message.includes('Execution context was destroyed')) {
@@ -67,12 +67,12 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
           name: `${order.firstName} ${order.lastName}`,
           reason: `Browser closed during processing`
         });
-        break; // Exit retry loop immediately
+        break; //Exit retry loop immediately
       }
 
       console.error(`❌ Attempt ${attempts} failed: ${order.firstName} ${order.lastName}`, error.message);
 
-      // Check for any modals after error and handle them
+      //Check for any modals after error and handle them
       if (page && !page.isClosed()) {
         await checkForCommunicationModal(page);
       }
@@ -91,7 +91,7 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
     }
   }
 
-  // Only add retry exhaustion message if browser didn't close
+  //Only add retry exhaustion message if browser didn't close
   if (lastError && !browserClosed) {
     skippedOrders.push({
       name: `${order.firstName} ${order.lastName}`,
