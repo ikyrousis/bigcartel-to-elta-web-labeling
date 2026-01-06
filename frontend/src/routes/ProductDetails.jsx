@@ -49,6 +49,8 @@ function ProductDetails() {
               <th>Product</th>
               <th>Weight (kg)</th>
               <th>Customs Value (€)</th>
+              <th>HS Tarif Number</th>
+              <th>Country of Origin</th>
             </tr>
           </thead>
           <tbody>
@@ -78,6 +80,29 @@ function ProductDetails() {
                     onChange={(e) => {
                       const val = parseFloat(e.target.value);
                       handleChange(product, 'customsValue', val >= 0 ? e.target.value : '');
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    value={form[product]?.hsTarifNumber || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      handleChange(product, 'hsTarifNumber', val);
+                    }}
+                  />
+                </td>
+                <td>
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    maxLength="2"
+                    value={form[product]?.countryOfOrigin || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+                      handleChange(product, 'countryOfOrigin', val);
                     }}
                   />
                 </td>

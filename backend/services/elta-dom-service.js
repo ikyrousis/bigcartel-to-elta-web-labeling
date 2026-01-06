@@ -36,7 +36,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     await page.waitForSelector('.select2-search--dropdown .select2-search__field');
 
     //Type the full country name into the input field
-    await page.type('.select2-search--dropdown .select2-search__field', 'LETTER RE');
+    await page.type('.select2-search--dropdown .select2-search__field', 'LETTER LL');
 
     //Press Enter to select the filtered option
     await page.keyboard.press('Enter');
@@ -50,7 +50,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     //Wait for the process to complete
     await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Use environment variables for sender details
+    //Use environment variables for sender details
     await page.$eval('input[name="SenderFirstName"]', (el, value) => el.value = value, process.env.SENDER_FIRST_NAME);
     await page.$eval('input[name="SenderLastName"]', (el, value) => el.value = value, process.env.SENDER_LAST_NAME);
     await page.$eval('input[name="SenderStreetName"]', (el, value) => el.value = value, process.env.SENDER_STREET_NAME);
@@ -126,7 +126,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
             const description = productToDescription[productName];
 
             if (!customsGroups[description]) {
-                customsGroups[description] = { quantity: 0, weight: 0, value: 0 };
+                customsGroups[description] = { quantity: 0, weight: 0, value: 0, hsTarifNumber: productDetail.hsTarifNumber || null, countryOfOrigin: productDetail.countryOfOrigin || null };
             }
 
             const weight = parseFloat(productDetail.weight);
@@ -143,8 +143,26 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
             await page.type(`input[name="CustomsDeclarationQuantity${rowIndex}"]`, data.quantity.toString());
             await page.type(`input[name="CustomsDeclarationNetWeight${rowIndex}"]`, formatWeightForInput(data.weight));
             await page.type(`input[name="CustomsDeclarationValue${rowIndex}"]`, data.value.toFixed(2).replace('.', ','));
+            
+            if (data.countryOfOrigin) {
+                await page.type(`input[name="CustomsDeclarationCounryOfOrigionOfGoods${rowIndex}"]`, data.countryOfOrigin);
+            }
+
+            if (data.hsTarifNumber) {
+                await page.type(`input[name="CustomsDeclarationHSTarifNumber${rowIndex}"]`, data.hsTarifNumber);
+            }
+            
             rowIndex++;
         }
+
+        //Click to trigger blur and start country validation=
+        await page.click('body').catch(() => {});
+        //Wait for the toast to appear (country lookup started)
+        await page.waitForSelector('.toast.toast-warning', { visible: true, timeout: 3000 }).catch(() => {});
+        //Wait for the toast to disappear (validation complete)
+        await page.waitForSelector('.toast.toast-warning', { hidden: true, timeout: 4000 }).catch(() => {});
+
+        await new Promise(resolve => setTimeout(resolve, 300));
 
         await page.click('button[data-step="4"]').catch(e => console.error("Error clicking the 'Next' button:", e.message));
 
@@ -200,7 +218,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         console.log('✅ Form filled. Solve CAPTCHA...');
 
         //Wait for CAPTCHA to be solved
-        await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); //waits indefinitely
+        await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); //Waits indefinitely
 
         console.log("productToDescription:", productToDescription);
 
@@ -223,7 +241,7 @@ async function checkForCommunicationModal(page) {
     if (okButton) {
       console.log('❌ Communication error modal detected - voucher generation failed');
       await okButton.click();
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Brief pause after click
+      await new Promise(resolve => setTimeout(resolve, 1500));
       return true; //Modal appeared, treat as failure
     }
     return false; //No modal found
