@@ -25,9 +25,10 @@ cd bigcartel-to-elta-web-labeling
 ### 2. Install Dependencies
 ```bash
 npm install
-npm install puppeteer@23.3.1
 cd frontend && npm install
 ```
+
+**Note:** The project requires Puppeteer version 23.3.1 specifically. This version is locked in `package.json` to ensure compatibility.
 
 ### 3. Environment Configuration
 Edit the `.env` file in the root of the project directory and replace the corresponding sender information:
@@ -92,12 +93,6 @@ The application supports building for multiple platforms:
 - **Windows**: `.exe` installer
 - **macOS**: `.dmg` package
 - **Linux**: `.AppImage` executable
-
-### Puppeteer Version
-Ensure you're using Puppeteer version 23.3.1:
-```bash
-npm install puppeteer@23.3.1
-```
 
 ### Environment Variables
 Make sure your `.env` file is properly configured with all required sender information.
