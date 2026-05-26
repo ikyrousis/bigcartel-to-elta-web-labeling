@@ -6,8 +6,8 @@ function MapProducts() {
   const {
     uniqueProducts,
     customsDescriptions,
-    productToDescription,
-    setProductToDescription,
+    productToCategory,
+    setProductToCategory,
     csvPath,
     productDetails,
     corePackagingWeight
@@ -17,30 +17,31 @@ function MapProducts() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setMapping({ ...productToDescription });
-  }, [productToDescription]);
+    setMapping({ ...productToCategory });
+  }, [productToCategory]);
 
-  const handleSelect = (product, value) => {
+  const handleSelect = (product, categoryIndex) => {
+    const category = customsDescriptions[categoryIndex];
     setMapping(prev => ({
       ...prev,
-      [product]: value
+      [product]: category
     }));
   };
 
   const handleFinish = () => {
     const missing = uniqueProducts.find(p => !mapping[p]);
     if (missing) {
-      alert(`Please assign a description to "${missing}"`);
+      alert(`Please assign a category to "${missing}"`);
       return;
     }
 
-    setProductToDescription(mapping);
+    setProductToCategory(mapping);
 
     window.electronAPI.runLabelGenerator({
       csvPath,
       productDetails,
       corePackagingWeight,
-      productToDescription: mapping
+      productToCategory: mapping
     });
   };
 
@@ -51,13 +52,13 @@ function MapProducts() {
   return (
     <div className="page-wrapper">
       <div className="centered-container">
-        <h2>🔗 Match Products to Customs Descriptions</h2>
+        <h2>🔗 Match Products to Customs Categories</h2>
 
           <table className="product-table">
             <thead>
               <tr>
                 <th>Product</th>
-                <th>Customs Description</th>
+                <th>Customs Category</th>
               </tr>
             </thead>
             <tbody>
@@ -67,12 +68,14 @@ function MapProducts() {
                   <td>
                     <select
                       className="mapping-select"
-                      value={mapping[product] || ''}
-                      onChange={(e) => handleSelect(product, e.target.value)}
+                      value={customsDescriptions.findIndex(c => c === mapping[product])}
+                      onChange={(e) => handleSelect(product, parseInt(e.target.value))}
                     >
-                      <option value="" disabled>Select category</option>
-                      {customsDescriptions.map((desc, i) => (
-                        <option key={i} value={desc}>{desc}</option>
+                      <option value="-1" disabled>Select category</option>
+                      {customsDescriptions.map((category, i) => (
+                        <option key={i} value={i}>
+                          {category.description} (HS: {category.hsTarifNumber || 'N/A'}, Origin: {category.countryOfOrigin || 'N/A'})
+                        </option>
                       ))}
                     </select>
                   </td>

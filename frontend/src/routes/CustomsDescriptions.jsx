@@ -9,13 +9,17 @@ function CustomsDescriptions() {
 
   const handleAdd = () => {
     if (!input.trim()) return;
-    setCustomsDescriptions([...customsDescriptions, input.trim()]);
+    setCustomsDescriptions([...customsDescriptions, {
+      description: input.trim(),
+      hsTarifNumber: '',
+      countryOfOrigin: ''
+    }]);
     setInput('');
   };
 
   const handleNext = () => {
     if (customsDescriptions.length === 0) {
-      alert('Please add at least one description.');
+      alert('Please add at least one category.');
       return;
     }
     navigate('/map-products');
@@ -25,10 +29,22 @@ function CustomsDescriptions() {
     navigate('/core-weight');
   };
 
+  const handleCategoryChange = (index, field, value) => {
+    const updated = [...customsDescriptions];
+    updated[index][field] = value;
+    setCustomsDescriptions(updated);
+  };
+
+  const handleDelete = (index) => {
+    const updated = [...customsDescriptions];
+    updated.splice(index, 1);
+    setCustomsDescriptions(updated);
+  };
+
   return (
     <div className="page-wrapper">
       <div className="centered-container">
-        <h2>📝 Enter Customs Description Categories</h2>
+        <h2>📝 Enter Customs Categories</h2>
 
         <div className="input-with-button">
           <div className="input-button-wrapper">
@@ -51,21 +67,42 @@ function CustomsDescriptions() {
         <table className="descriptions-table">
           <thead>
             <tr>
-              <th>Customs Descriptions</th>
+              <th>Customs Description</th>
+              <th>HS Tarif Number</th>
+              <th>Country of Origin</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {customsDescriptions.map((desc, index) => (
+            {customsDescriptions.map((category, index) => (
               <tr key={index} className="description-row">
-                <td>{desc}</td>
+                <td>{category.description}</td>
                 <td>
-                  <button 
-                    onClick={() => {
-                      const updated = [...customsDescriptions];
-                      updated.splice(index, 1);
-                      setCustomsDescriptions(updated);
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    value={category.hsTarifNumber || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      handleCategoryChange(index, 'hsTarifNumber', val);
                     }}
+                  />
+                </td>
+                <td>
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    maxLength="2"
+                    value={category.countryOfOrigin || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+                      handleCategoryChange(index, 'countryOfOrigin', val);
+                    }}
+                  />
+                </td>
+                <td>
+                  <button
+                    onClick={() => handleDelete(index)}
                     className="delete-button"
                   >
                     ×

@@ -149,7 +149,8 @@ input:focus-visible {
   font-weight: 600;
 }
 
-.product-table input {
+.product-table input,
+.descriptions-table input {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid #ddd;

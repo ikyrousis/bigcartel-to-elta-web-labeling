@@ -4,7 +4,7 @@ const fs = require('fs');
 const { normalizeSpecialCharacters, formatWeightForInput } = require('../lib/text-formatter');
 const { countryCodeToName, stateAbbreviations } = require('../lib/region-mapping');
 
-async function processOrder(page, order, productDetails, corePackagingWeight, productToDescription) {
+async function processOrder(page, order, productDetails, corePackagingWeight, productToCategory) {
     //Navigate to the 'New Voucher' page
     await page.waitForSelector('#NavNewVoucher', { visible: true });
     await page.click('#NavNewVoucher');
@@ -123,23 +123,33 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
             const productName = item.productName;
             const quantity = item.quantity;
             const productDetail = productDetails[productName];
-            const description = productToDescription[productName];
+            const category = productToCategory[productName];
 
-            if (!customsGroups[description]) {
-                customsGroups[description] = { quantity: 0, weight: 0, value: 0, hsTarifNumber: productDetail.hsTarifNumber || null, countryOfOrigin: productDetail.countryOfOrigin || null };
+            // Use composite key to group by description + HS Tarif Number + Country of Origin
+            const groupKey = `${category.description}|${category.hsTarifNumber || ''}|${category.countryOfOrigin || ''}`;
+
+            if (!customsGroups[groupKey]) {
+                customsGroups[groupKey] = {
+                    description: category.description,
+                    quantity: 0,
+                    weight: 0,
+                    value: 0,
+                    hsTarifNumber: category.hsTarifNumber || null,
+                    countryOfOrigin: category.countryOfOrigin || null
+                };
             }
 
             const weight = parseFloat(productDetail.weight);
             const value = parseFloat(productDetail.customsValue);
 
-            customsGroups[description].quantity += quantity;
-            customsGroups[description].weight += weight * quantity;
-            customsGroups[description].value += value * quantity;
+            customsGroups[groupKey].quantity += quantity;
+            customsGroups[groupKey].weight += weight * quantity;
+            customsGroups[groupKey].value += value * quantity;
         }
 
         let rowIndex = 1;
-        for (const [description, data] of Object.entries(customsGroups)) {
-            await page.type(`input[name="CustomsDeclarationDetailedDescriptionOfContents${rowIndex}"]`, description);
+        for (const [groupKey, data] of Object.entries(customsGroups)) {
+            await page.type(`input[name="CustomsDeclarationDetailedDescriptionOfContents${rowIndex}"]`, data.description);
             await page.type(`input[name="CustomsDeclarationQuantity${rowIndex}"]`, data.quantity.toString());
             await page.type(`input[name="CustomsDeclarationNetWeight${rowIndex}"]`, formatWeightForInput(data.weight));
             await page.type(`input[name="CustomsDeclarationValue${rowIndex}"]`, data.value.toFixed(2).replace('.', ','));
@@ -180,7 +190,7 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
     await new Promise(resolve => setTimeout(resolve, 5000));
 }
 
-async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToDescription }) {
+async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToCategory }) {
     const { app } = require('electron');
     const browser = await puppeteer.launch({
         headless: false,
@@ -220,10 +230,10 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         //Wait for CAPTCHA to be solved
         await page.waitForSelector('#NavNewVoucher', { timeout: 0 }); //Waits indefinitely
 
-        console.log("productToDescription:", productToDescription);
+        console.log("productToCategory:", productToCategory);
 
         const { readCsvAndProcessOrders } = require('./big-cartel-order-service');
-        await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvPath);
+        await readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToCategory, csvPath);
     } catch (err) {
         console.error('❌ Puppeteer failed:', err);
     }

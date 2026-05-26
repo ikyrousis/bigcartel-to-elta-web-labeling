@@ -5,7 +5,7 @@ const { cleanPhoneNumber } = require('../lib/text-formatter');
 const { processOrder, checkForCommunicationModal } = require('./elta-dom-service');
 
 //Process a single order with enhanced retry functionality and graceful Puppeteer handling
-async function processOrderWithRetry(page, order, productDetails, corePackagingWeight, productToDescription, skippedOrders) {
+async function processOrderWithRetry(page, order, productDetails, corePackagingWeight, productToCategory, skippedOrders) {
   let totalWeight = parseFloat(corePackagingWeight);
 
   for (const item of order.items) {
@@ -42,7 +42,7 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
       }
 
       //Attempt to process the order
-      await processOrder(page, order, productDetails, corePackagingWeight, productToDescription);
+      await processOrder(page, order, productDetails, corePackagingWeight, productToCategory);
 
       //Check if a communication modal appeared (indicating failure)
       const modalAppeared = await checkForCommunicationModal(page);
@@ -102,7 +102,7 @@ async function processOrderWithRetry(page, order, productDetails, corePackagingW
 }
 
 //Read orders from CSV and process them
-async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToDescription, csvFilePath) {
+async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight, productToCategory, csvFilePath) {
   const results = [];
   const skippedOrders = [];
 
@@ -168,7 +168,7 @@ async function readCsvAndProcessOrders(page, productDetails, corePackagingWeight
         console.log('CSV file processing started.');
 
         for (const order of results) {
-          await processOrderWithRetry(page, order, productDetails, corePackagingWeight, productToDescription, skippedOrders);
+          await processOrderWithRetry(page, order, productDetails, corePackagingWeight, productToCategory, skippedOrders);
         }
 
         if (skippedOrders.length > 0) {
