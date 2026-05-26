@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const csv = require('csv-parser');
@@ -42,6 +42,9 @@ function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+
+// Remove the default menu bar
+Menu.setApplicationMenu(null);
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
