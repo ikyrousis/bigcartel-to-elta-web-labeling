@@ -193,6 +193,11 @@ input:focus-visible {
   font-weight: 600;
 }
 
+.data-table td:last-child,
+.data-table th:last-child {
+  text-align: center;
+}
+
 .data-table input {
   width: 100%;
   padding: 0.5rem;
@@ -204,10 +209,13 @@ input:focus-visible {
   background-color: #f9f9f9;
 }
 
-/* Constrain width on the descriptions variant */
-.data-table--narrow {
-  max-width: 500px;
-  margin-inline: auto;
+.centered-container--wide {
+  max-width: 1000px;
+}
+
+.data-table .mapping-select {
+  max-width: 100%;
+  width: 100%;
 }
 
 
@@ -272,7 +280,7 @@ input:focus-visible {
 
 .input-with-button {
   width: 100%;
-  max-width: 500px;
+  max-width: 600px;
   margin: 2rem auto;
 }
 

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
+import { countriesOfOrigin } from "../models/originCountries";
 import BackButton from '../components/BackButton';
+
 
 function CustomsDescriptions() {
   const { customsDescriptions, setCustomsDescriptions } = useAppContext();
@@ -57,7 +59,7 @@ function CustomsDescriptions() {
 
   return (
     <div className="page-wrapper">
-      <div className="centered-container">
+      <div className="centered-container centered-container--wide">
         <h2>📝 Enter Customs Categories</h2>
 
         <div className="input-with-button">
@@ -75,7 +77,13 @@ function CustomsDescriptions() {
 
         {error && <p className="field-error" role="alert">{error}</p>}
 
-        <table className="data-table data-table--narrow">
+        <table className="data-table">
+          <colgroup>
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '20%' }} />
+            <col style={{ width: '45%' }} />
+            <col style={{ width: '10%' }} />
+          </colgroup>
           <thead>
             <tr>
               <th>Customs Description</th>
@@ -100,16 +108,18 @@ function CustomsDescriptions() {
                   />
                 </td>
                 <td>
-                  <input
-                    placeholder="Required"
-                    type="text"
-                    maxLength="2"
+                  <select
                     value={category.countryOfOrigin || ''}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
-                      handleCategoryChange(category.id, 'countryOfOrigin', val);
-                    }}
-                  />
+                    onChange={(e) => handleCategoryChange(category.id, 'countryOfOrigin', e.target.value)}
+                    className="mapping-select"
+                  >
+                    <option value="" disabled>Select</option>
+                    {countriesOfOrigin.map(c => (
+                      <option key={c.code} value={c.code}>
+                        {c.code} — {c.name}
+                      </option>
+                    ))}
+                  </select>
                 </td>
                 <td>
                   <button onClick={() => handleDelete(category.id)} className="delete-button">×</button>
