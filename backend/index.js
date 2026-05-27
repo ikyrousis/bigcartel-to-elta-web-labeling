@@ -25,7 +25,7 @@ function writeSkippedOrdersLog(skippedOrders, outputDir) {
 }
 
 // Top-level orchestrator — wires all layers together
-async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToCategory }) {
+async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToCategory, markAsGift }) {
   const outputDir = resolveOutputDir();
 
   if (!fs.existsSync(outputDir)) {
@@ -46,7 +46,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
       // Inject the adapter's processOrder as the executor
       const executeOrder = async (order) => {
         await dismissErrorModal(page);
-        return processOrder(page, order, productDetails, corePackagingWeight, productToCategory);
+        return processOrder(page, order, productDetails, corePackagingWeight, productToCategory, markAsGift);
       };
 
       await processOrderWithRetry(

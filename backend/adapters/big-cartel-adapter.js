@@ -42,6 +42,7 @@ function parseOrderRow(data, productDetails) {
   return {
     firstName: data['Buyer first name'],
     lastName: data['Buyer last name'],
+    orderNumber: data['Number'],
     country: data['Shipping country'],
     addressNumber,
     addressRest,

@@ -9,6 +9,7 @@ export const AppProvider = ({ children }) => {
   const [corePackagingWeight, setCorePackagingWeight] = useState('');
   const [customsDescriptions, setCustomsDescriptions] = useState([]);
   const [productToCategory, setProductToCategory] = useState({});
+  const [markAsGift, setMarkAsGift] = useState(false);
 
   return (
     <AppContext.Provider
@@ -18,7 +19,8 @@ export const AppProvider = ({ children }) => {
         productDetails, setProductDetails,
         corePackagingWeight, setCorePackagingWeight,
         customsDescriptions, setCustomsDescriptions,
-        productToCategory, setProductToCategory
+        productToCategory, setProductToCategory,
+        markAsGift, setMarkAsGift
       }}
     >
       {children}

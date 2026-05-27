@@ -89,20 +89,24 @@ async function initiateVoucher(page, countryCode) {
   await new Promise(resolve => setTimeout(resolve, 2000));
 }
 
-// Fills the weight field and checks the gift checkbox
-async function fillWeightAndGift(page, order, productDetails, corePackagingWeight) {
-  const totalWeight = calculateOrderWeight(order, productDetails, corePackagingWeight);
-  await page.type('input[name="VoucherDetailWeight"]', formatWeightForInput(totalWeight));
-
-  await page.evaluate(() => {
-    const checkbox = document.querySelector('#VoucherDetailGift');
-    checkbox.checked = true;
-    checkbox.dispatchEvent(new Event('change'));
-  });
+// Checks a form checkbox by ID and fires a change event
+async function checkFormOption(page, id) {
+  await page.evaluate((id) => {
+    const el = document.querySelector(id);
+    el.checked = true;
+    el.dispatchEvent(new Event('change'));
+  }, id);
 }
 
-// Fills the customs declaration form rows
-async function fillCustomsForm(page, order, productDetails, productToCategory) {
+// Fills weight and contents type for the shipment
+async function fillShipmentDetails(page, order, productDetails, corePackagingWeight, markAsGift) {
+  const totalWeight = calculateOrderWeight(order, productDetails, corePackagingWeight);
+  await page.type('input[name="VoucherDetailWeight"]', formatWeightForInput(totalWeight));
+  await checkFormOption(page, markAsGift ? '#VoucherDetailGift' : '#VoucherDetailSaleOfGoods');
+}
+
+// Fills the customs declaration form rows and invoice number if applicable
+async function fillCustomsForm(page, order, productDetails, productToCategory, markAsGift) {
   const groups = buildCustomsGroups(order, productDetails, productToCategory);
 
   for (let i = 0; i < groups.length; i++) {
@@ -126,21 +130,26 @@ async function fillCustomsForm(page, order, productDetails, productToCategory) {
   await page.waitForSelector('.toast.toast-warning', { visible: true, timeout: 3000 }).catch(() => {});
   await page.waitForSelector('.toast.toast-warning', { hidden: true, timeout: 4000 }).catch(() => {});
   await new Promise(resolve => setTimeout(resolve, 300));
+
+  if (!markAsGift) {
+    await checkFormOption(page, '#VoucherDetailInvoiceNumbersFlag');
+    await page.type('input[name="VoucherDetailInvoiceNumbers"]', order.orderNumber);
+  }
 }
 
 // Processes one complete order through the voucher wizard
-async function processOrder(page, order, productDetails, corePackagingWeight, productToCategory) {
+async function processOrder(page, order, productDetails, corePackagingWeight, productToCategory, markAsGift) {
   await initiateVoucher(page, order.country);
   await fillSenderDetails(page);
   await page.click('.btn-next[data-step="2"]');
   await new Promise(resolve => setTimeout(resolve, 1000));
   await fillRecipientDetails(page, order);
-  await fillWeightAndGift(page, order, productDetails, corePackagingWeight);
+  await fillShipmentDetails(page, order, productDetails, corePackagingWeight, markAsGift);
   await page.click('button[data-step="3"]');
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   if (requiresCustomsDeclaration(order.country)) {
-    await fillCustomsForm(page, order, productDetails, productToCategory);
+    await fillCustomsForm(page, order, productDetails, productToCategory, markAsGift);
     await page.click('button[data-step="4"]');
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
@@ -160,7 +169,6 @@ async function dismissErrorModal(page) {
     console.error('Communication error modal detected');
     await okButton.click();
     await new Promise(resolve => setTimeout(resolve, 3000));
-    // Let processOrder proceed after dismissal
   } catch {
   }
 }

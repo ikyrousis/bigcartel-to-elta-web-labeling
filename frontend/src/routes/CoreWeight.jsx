@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import BackButton from '../components/BackButton';
 
 function CoreWeight() {
-  const { corePackagingWeight, setCorePackagingWeight } = useAppContext();
+  const { corePackagingWeight, setCorePackagingWeight, markAsGift, setMarkAsGift } = useAppContext();
   const [weight, setWeight] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -15,12 +15,10 @@ function CoreWeight() {
 
   const handleNext = () => {
     const numWeight = parseFloat(weight);
-
     if (!weight || isNaN(numWeight)) {
       setError('Please enter a valid weight.');
       return;
     }
-
     setError('');
     setCorePackagingWeight(weight);
     navigate('/customs-descriptions');
@@ -52,6 +50,16 @@ function CoreWeight() {
           />
           <span className="input-suffix">kg</span>
         </div>
+
+        {/* Gift option */}
+        <label className="checkbox-label">
+          <input
+            type="checkbox"
+            checked={markAsGift}
+            onChange={(e) => setMarkAsGift(e.target.checked)}
+          />
+          Mark all shipments as gift
+        </label>
 
         {error && <p className="field-error" role="alert">{error}</p>}
 

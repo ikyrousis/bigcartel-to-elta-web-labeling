@@ -11,7 +11,8 @@ function MapProducts() {
     setProductToCategory,
     csvPath,
     productDetails,
-    corePackagingWeight
+    corePackagingWeight,
+    markAsGift
   } = useAppContext();
 
   const [mapping, setMapping] = useState(() => ({ ...productToCategory }));
@@ -38,7 +39,8 @@ function MapProducts() {
       csvPath,
       productDetails,
       corePackagingWeight,
-      productToCategory: mapping
+      productToCategory: mapping,
+      markAsGift
     });
   };
 
