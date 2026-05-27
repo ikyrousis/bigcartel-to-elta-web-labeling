@@ -70,7 +70,7 @@ async function initiateVoucher(page, countryCode) {
   await page.click('#NavNewVoucher');
 
   await page.waitForSelector("[aria-labelledby='select2-CountryCode-container']", { visible: true });
-  await page.click("[aria-labelledby='select2-CountryCode-container']").catch(e => console.error('Error clicking country dropdown:', e.message));
+  await page.click("[aria-labelledby='select2-CountryCode-container']");
 
   await page.waitForSelector('.select2-search--dropdown .select2-search__field');
   await page.type('.select2-search--dropdown .select2-search__field', countryCodeToName[countryCode]);
@@ -78,7 +78,7 @@ async function initiateVoucher(page, countryCode) {
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   await page.waitForSelector("[aria-labelledby='select2-ServiceCode-container']", { visible: true });
-  await page.click("[aria-labelledby='select2-ServiceCode-container']").catch(e => console.error('Error clicking service dropdown:', e.message));
+  await page.click("[aria-labelledby='select2-ServiceCode-container']");
 
   await page.waitForSelector('.select2-search--dropdown .select2-search__field');
   await page.type('.select2-search--dropdown .select2-search__field', 'LETTER LL');
@@ -132,21 +132,21 @@ async function fillCustomsForm(page, order, productDetails, productToCategory) {
 async function processOrder(page, order, productDetails, corePackagingWeight, productToCategory) {
   await initiateVoucher(page, order.country);
   await fillSenderDetails(page);
-  await page.click('.btn-next[data-step="2"]').catch(e => console.error('Error clicking Next (step 2):', e.message));
+  await page.click('.btn-next[data-step="2"]');
   await new Promise(resolve => setTimeout(resolve, 1000));
   await fillRecipientDetails(page, order);
   await fillWeightAndGift(page, order, productDetails, corePackagingWeight);
-  await page.click('button[data-step="3"]').catch(e => console.error('Error clicking Next (step 3):', e.message));
+  await page.click('button[data-step="3"]');
   await new Promise(resolve => setTimeout(resolve, 1000));
 
   if (requiresCustomsDeclaration(order.country)) {
     await fillCustomsForm(page, order, productDetails, productToCategory);
-    await page.click('button[data-step="4"]').catch(e => console.error('Error clicking Next (step 4):', e.message));
+    await page.click('button[data-step="4"]');
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 
   await page.waitForSelector('#printVoucher', { visible: true });
-  await page.click('#printVoucher').catch(e => console.error('Error clicking Print:', e.message));
+  await page.click('#printVoucher');
   await new Promise(resolve => setTimeout(resolve, 5000));
 }
 
