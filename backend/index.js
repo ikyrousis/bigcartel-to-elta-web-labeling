@@ -21,7 +21,7 @@ function writeSkippedOrdersLog(skippedOrders, outputDir) {
   const logContent = skippedOrders.map(o => `${o.name} — ${o.reason}`).join('\n');
   const logPath = path.join(outputDir, 'skipped-orders.log');
   fs.writeFileSync(logPath, logContent);
-  console.log(`⚠️ ${skippedOrders.length} order(s) skipped. See ${logPath}`);
+  console.warn(`${skippedOrders.length} order(s) skipped. See ${logPath}`);
 }
 
 // Top-level orchestrator — wires all layers together
@@ -36,7 +36,6 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
 
   try {
     await loginAndWaitForCaptcha(page);
-    console.log('✅ Page loaded');
 
     const orders = await readOrders(csvPath, productDetails);
     console.log('CSV file processing started.');
@@ -73,10 +72,10 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
     }
 
     writeSkippedOrdersLog(skippedOrders, outputDir);
-    console.log('✅ CSV file processing completed.');
+    console.log('CSV file processing completed.');
 
   } catch (err) {
-    console.error('❌ Puppeteer failed:', err);
+    console.error('Puppeteer failed:', err);
   }
 
   await browser.close();

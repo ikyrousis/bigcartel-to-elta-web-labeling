@@ -33,9 +33,9 @@ async function processOrderWithRetry(order, productDetails, corePackagingWeight,
   while (attempts < MAX_ATTEMPTS && !browserClosed) {
     attempts++;
     try {
-      console.log(`🔄 Processing: ${orderName} (Attempt ${attempts}/${MAX_ATTEMPTS})`);
+      console.log(`Processing: ${orderName} (Attempt ${attempts}/${MAX_ATTEMPTS})`);
       await executeOrder(order);
-      console.log(`✅ Processed: ${orderName}`);
+      console.log(`Processed: ${orderName}`);
       lastError = null;
       break;
     } catch (error) {
@@ -43,15 +43,15 @@ async function processOrderWithRetry(order, productDetails, corePackagingWeight,
 
       if (isBrowserClosedError(error)) {
         browserClosed = true;
-        console.error(`🛑 Browser closed during processing: ${orderName}`);
+        console.error(`Browser closed during processing: ${orderName}`);
         skippedOrders.push({ name: orderName, reason: 'Browser closed during processing' });
         break;
       }
 
-      console.error(`❌ Attempt ${attempts} failed: ${orderName}`, error.message);
+      console.error(`Attempt ${attempts} failed: ${orderName}`, error.message);
 
       if (attempts < MAX_ATTEMPTS) {
-        console.log(`⏳ Waiting ${RETRY_DELAY_MS / 1000}s before retry ${attempts + 1}/${MAX_ATTEMPTS}...`);
+        console.log(`Waiting ${RETRY_DELAY_MS / 1000}s before retry ${attempts + 1}/${MAX_ATTEMPTS}...`);
         await new Promise(resolve => setTimeout(resolve, RETRY_DELAY_MS));
       }
     }
@@ -62,7 +62,7 @@ async function processOrderWithRetry(order, productDetails, corePackagingWeight,
       name: orderName,
       reason: `Error after ${MAX_ATTEMPTS} attempts: ${lastError.message}`
     });
-    console.error(`❌ Failed permanently: ${orderName} after ${MAX_ATTEMPTS} attempts`);
+    console.error(`Failed permanently: ${orderName} after ${MAX_ATTEMPTS} attempts`);
   }
 }
 

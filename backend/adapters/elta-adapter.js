@@ -29,7 +29,6 @@ async function loginAndWaitForCaptcha(page) {
   await page.waitForSelector('input[name="Email"]', { timeout: 15000 });
   await page.type('input[name="Email"]', process.env.EMAIL_ADDRESS);
   await page.click('input[name="AgreedToTerms"]');
-  console.log('✅ Form filled. Solve CAPTCHA...');
   await page.waitForSelector('#NavNewVoucher', { timeout: 0 });
 }
 
@@ -159,13 +158,10 @@ async function checkForCommunicationModal(page) {
       'button[data-bb-handler="ok"].btn.btn-primary',
       { timeout: 2000, visible: true }
     );
-    if (okButton) {
-      console.log('❌ Communication error modal detected');
-      await okButton.click();
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      return true;
-    }
-    return false;
+    console.log('Communication error modal detected');
+    await okButton.click();
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    return true;
   } catch {
     return false;
   }
