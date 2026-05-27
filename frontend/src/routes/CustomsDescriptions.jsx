@@ -26,6 +26,19 @@ function CustomsDescriptions() {
       setError('Please add at least one category.');
       return;
     }
+
+    const missingHS = customsDescriptions.find(c => !c.hsTarifNumber?.trim());
+    if (missingHS) {
+      setError(`HS Tarif Number is required — missing on "${missingHS.description}"`);
+      return;
+    }
+
+    const missingOrigin = customsDescriptions.find(c => !c.countryOfOrigin?.trim());
+    if (missingOrigin) {
+      setError(`Country of Origin is required — missing on "${missingOrigin.description}"`);
+      return;
+    }
+
     setError('');
     navigate('/map-products');
   };
@@ -77,7 +90,7 @@ function CustomsDescriptions() {
                 <td>{category.description}</td>
                 <td>
                   <input
-                    placeholder="Optional"
+                    placeholder="Required"
                     type="text"
                     value={category.hsTarifNumber || ''}
                     onChange={(e) => {
@@ -88,7 +101,7 @@ function CustomsDescriptions() {
                 </td>
                 <td>
                   <input
-                    placeholder="Optional"
+                    placeholder="Required"
                     type="text"
                     maxLength="2"
                     value={category.countryOfOrigin || ''}

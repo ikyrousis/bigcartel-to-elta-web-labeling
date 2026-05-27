@@ -4,7 +4,12 @@ import { useState, useEffect } from 'react';
 import BackButton from '../components/BackButton';
 
 function CoreWeight() {
-  const { corePackagingWeight, setCorePackagingWeight, markAsGift, setMarkAsGift } = useAppContext();
+  const {
+    corePackagingWeight, setCorePackagingWeight,
+    markAsGift, setMarkAsGift,
+    requiresCustoms,
+    csvPath, productDetails, productToCategory
+  } = useAppContext();
   const [weight, setWeight] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -21,7 +26,18 @@ function CoreWeight() {
     }
     setError('');
     setCorePackagingWeight(weight);
-    navigate('/customs-descriptions');
+
+    if (requiresCustoms) {
+      navigate('/customs-descriptions');
+    } else {
+      window.electronAPI.runLabelGenerator({
+        csvPath,
+        productDetails,
+        corePackagingWeight: weight,
+        productToCategory: {},
+        markAsGift
+      });
+    }
   };
 
   return (
@@ -51,7 +67,6 @@ function CoreWeight() {
           <span className="input-suffix">kg</span>
         </div>
 
-        {/* Gift option */}
         <label className="checkbox-label">
           <input
             type="checkbox"
@@ -65,7 +80,9 @@ function CoreWeight() {
 
         <div className="button-group">
           <BackButton />
-          <button className="btn-primary" onClick={handleNext}>Next</button>
+          <button className="btn-primary" onClick={handleNext}>
+            {requiresCustoms ? 'Next' : 'Run Label Generator'}
+          </button>
         </div>
       </div>
     </div>

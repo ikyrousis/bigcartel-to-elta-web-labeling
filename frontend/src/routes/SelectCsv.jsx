@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 
 function SelectCsv() {
-  const { setCsvPath, setUniqueProducts } = useAppContext();
+  const { setCsvPath, setUniqueProducts, setRequiresCustoms } = useAppContext();
   const [fileName, setFileName] = useState('');
   const navigate = useNavigate();
 
@@ -16,8 +16,9 @@ function SelectCsv() {
     setFileName(file.name);
 
     try {
-      const products = await window.electronAPI.parseCsv(path);
+      const { products, requiresCustoms } = await window.electronAPI.parseCsv(path);
       setUniqueProducts(products);
+      setRequiresCustoms(requiresCustoms);
       navigate('/product-details');
     } catch (err) {
       console.error('Failed to parse CSV:', err);

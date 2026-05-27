@@ -59,7 +59,7 @@ app.on('activate', () => {
 });
 
 
-//🟡 IPC: Run Puppeteer after all data collected
+// IPC: Run Puppeteer after all data collected
 ipcMain.handle('run-label-generator', async (event, userData) => {
   try {
     await runPuppeteerWithData(userData);
@@ -70,14 +70,19 @@ ipcMain.handle('run-label-generator', async (event, userData) => {
 });
 
 
-//🟢 IPC: Parse CSV to extract unique product names
+// IPC: Parse CSV to extract unique product names and detect customs requirement
 ipcMain.handle('parse-csv', async (event, filePath) => {
+  const { requiresCustomsDeclaration } = require('./backend/services/customs-service');
+
   return new Promise((resolve, reject) => {
     const uniqueProducts = new Set();
+    let requiresCustoms = false;
 
     fs.createReadStream(filePath)
       .pipe(csv())
       .on('data', (data) => {
+        if (requiresCustomsDeclaration(data['Shipping country'])) requiresCustoms = true;
+
         const items = data['Items'].split(';');
         items.forEach((item) => {
           const match = item.match(/product_name:([^|]+)/);
@@ -87,10 +92,8 @@ ipcMain.handle('parse-csv', async (event, filePath) => {
         });
       })
       .on('end', () => {
-        resolve([...uniqueProducts]);
+        resolve({ products: [...uniqueProducts], requiresCustoms });
       })
-      .on('error', (err) => {
-        reject(err);
-      });
+      .on('error', reject);
   });
 });
