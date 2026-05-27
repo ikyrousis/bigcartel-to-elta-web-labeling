@@ -7,9 +7,7 @@ function calculateOrderWeight(order, productDetails, corePackagingWeight) {
 
   for (const item of order.items) {
     const detail = productDetails[item.productName];
-    if (detail) {
-      total += parseFloat(detail.weight) * parseInt(item.quantity, 10);
-    }
+    total += parseFloat(detail.weight) * parseInt(item.quantity, 10);
   }
 
   return total;

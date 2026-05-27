@@ -129,27 +129,6 @@ async function fillCustomsForm(page, order, productDetails, productToCategory) {
   await new Promise(resolve => setTimeout(resolve, 300));
 }
 
-// Clicks through all wizard steps and prints the voucher
-async function submitAndPrint(page, order) {
-  await page.click('.btn-next[data-step="2"]').catch(e => console.error('Error clicking Next (step 2):', e.message));
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  await fillRecipientDetails(page, order);
-
-  await page.click('button[data-step="3"]').catch(e => console.error('Error clicking Next (step 3):', e.message));
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  if (requiresCustomsDeclaration(order.country)) {
-    await fillCustomsForm(page, order);
-    await page.click('button[data-step="4"]').catch(e => console.error('Error clicking Next (step 4):', e.message));
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  await page.waitForSelector('#printVoucher', { visible: true });
-  await page.click('#printVoucher').catch(e => console.error('Error clicking Print:', e.message));
-  await new Promise(resolve => setTimeout(resolve, 5000));
-}
-
 // Processes one complete order through the voucher wizard
 async function processOrder(page, order, productDetails, corePackagingWeight, productToCategory) {
   await initiateVoucher(page, order.country);

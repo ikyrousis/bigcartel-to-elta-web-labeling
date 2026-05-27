@@ -1,4 +1,4 @@
-const { calculateOrderWeight, exceedsWeightLimit } = require('./weight-service');
+const { calculateOrderWeight, exceedsWeightLimit, WEIGHT_LIMIT_KG } = require('./weight-service');
 
 const MAX_ATTEMPTS = 3;
 const RETRY_DELAY_MS = 15000;

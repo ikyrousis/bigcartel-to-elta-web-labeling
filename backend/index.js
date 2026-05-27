@@ -18,10 +18,6 @@ function resolveOutputDir() {
 function writeSkippedOrdersLog(skippedOrders, outputDir) {
   if (skippedOrders.length === 0) return;
 
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
-
   const logContent = skippedOrders.map(o => `${o.name} — ${o.reason}`).join('\n');
   const logPath = path.join(outputDir, 'skipped-orders.log');
   fs.writeFileSync(logPath, logContent);

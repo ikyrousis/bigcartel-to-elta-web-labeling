@@ -40,7 +40,7 @@ function CoreWeight() {
           <input
             type="number"
             step="0.01"
-            placeholder="0.00"
+            placeholder="0.000"
             value={weight}
             onChange={(e) => {
               const raw = e.target.value;
