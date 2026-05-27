@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-const AppContext = createContext();
+const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [csvPath, setCsvPath] = useState('');
@@ -8,7 +8,7 @@ export const AppProvider = ({ children }) => {
   const [productDetails, setProductDetails] = useState({});
   const [corePackagingWeight, setCorePackagingWeight] = useState('');
   const [customsDescriptions, setCustomsDescriptions] = useState([]);
-  const [productToDescription, setProductToDescription] = useState({});
+  const [productToCategory, setProductToCategory] = useState({});
 
   return (
     <AppContext.Provider
@@ -18,7 +18,7 @@ export const AppProvider = ({ children }) => {
         productDetails, setProductDetails,
         corePackagingWeight, setCorePackagingWeight,
         customsDescriptions, setCustomsDescriptions,
-        productToDescription, setProductToDescription
+        productToCategory, setProductToCategory
       }}
     >
       {children}
@@ -26,4 +26,8 @@ export const AppProvider = ({ children }) => {
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error('useAppContext must be used inside <AppProvider>');
+  return ctx;
+};

@@ -31,13 +31,13 @@ function SelectCsv() {
         <h2>📂 Select your BigCartel orders export file</h2>
         <div className="file-input-wrapper">
           <label className="custom-file-input">
-            <input 
-              type="file" 
-              accept=".csv" 
+            <input
+              type="file"
+              accept=".csv"
               onChange={handleFileChange}
-              className="hidden-file-input" 
+              className="hidden-file-input"
             />
-            <span className="file-input-button">Choose CSV File</span>
+            <span className="btn-primary file-input-button">Choose CSV File</span>
             <span className="file-input-text">{fileName || "No file chosen"}</span>
           </label>
         </div>

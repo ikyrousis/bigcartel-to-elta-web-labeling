@@ -32,6 +32,10 @@ function createWindow() {
     }
   });
 
+  win.on('page-title-updated', (e) => {
+    e.preventDefault();
+  });
+
   //win.webContents.openDevTools();
 
   if (process.env.NODE_ENV === 'development') {

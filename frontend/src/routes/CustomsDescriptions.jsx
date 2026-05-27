@@ -1,34 +1,51 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 function CustomsDescriptions() {
   const { customsDescriptions, setCustomsDescriptions } = useAppContext();
   const [input, setInput] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleAdd = () => {
     if (!input.trim()) return;
-    setCustomsDescriptions([...customsDescriptions, input.trim()]);
+    setCustomsDescriptions([...customsDescriptions, {
+      id: crypto.randomUUID(),
+      description: input.trim(),
+      hsTarifNumber: '',
+      countryOfOrigin: ''
+    }]);
     setInput('');
+    if (error) setError('');
   };
 
   const handleNext = () => {
     if (customsDescriptions.length === 0) {
-      alert('Please add at least one description.');
+      setError('Please add at least one category.');
       return;
     }
+    setError('');
     navigate('/map-products');
   };
 
-  const handleBack = () => {
-    navigate('/core-weight');
+  const handleCategoryChange = (id, field, value) => {
+    setCustomsDescriptions(
+      customsDescriptions.map(cat =>
+        cat.id === id ? { ...cat, [field]: value } : cat
+      )
+    );
+  };
+
+  const handleDelete = (id) => {
+    setCustomsDescriptions(customsDescriptions.filter(cat => cat.id !== id));
   };
 
   return (
     <div className="page-wrapper">
       <div className="centered-container">
-        <h2>📝 Enter Customs Description Categories</h2>
+        <h2>📝 Enter Customs Categories</h2>
 
         <div className="input-with-button">
           <div className="input-button-wrapper">
@@ -37,39 +54,52 @@ function CustomsDescriptions() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="description-input"
-              onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             />
-            <button
-              onClick={handleAdd}
-              className="embedded-add-button"
-            >
-              +
-            </button>
+            <button onClick={handleAdd} className="embedded-add-button">+</button>
           </div>
         </div>
 
-        <table className="descriptions-table">
+        {error && <p className="field-error" role="alert">{error}</p>}
+
+        <table className="data-table data-table--narrow">
           <thead>
             <tr>
-              <th>Customs Descriptions</th>
+              <th>Customs Description</th>
+              <th>HS Tarif Number</th>
+              <th>Country of Origin</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {customsDescriptions.map((desc, index) => (
-              <tr key={index} className="description-row">
-                <td>{desc}</td>
+            {customsDescriptions.map((category) => (
+              <tr key={category.id} className="description-row">
+                <td>{category.description}</td>
                 <td>
-                  <button 
-                    onClick={() => {
-                      const updated = [...customsDescriptions];
-                      updated.splice(index, 1);
-                      setCustomsDescriptions(updated);
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    value={category.hsTarifNumber || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      handleCategoryChange(category.id, 'hsTarifNumber', val);
                     }}
-                    className="delete-button"
-                  >
-                    ×
-                  </button>
+                  />
+                </td>
+                <td>
+                  <input
+                    placeholder="Optional"
+                    type="text"
+                    maxLength="2"
+                    value={category.countryOfOrigin || ''}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
+                      handleCategoryChange(category.id, 'countryOfOrigin', val);
+                    }}
+                  />
+                </td>
+                <td>
+                  <button onClick={() => handleDelete(category.id)} className="delete-button">×</button>
                 </td>
               </tr>
             ))}
@@ -77,8 +107,8 @@ function CustomsDescriptions() {
         </table>
 
         <div className="button-group">
-          <button onClick={handleBack}>Back</button>
-          <button onClick={handleNext}>Next</button>
+          <BackButton />
+          <button className="btn-primary" onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>
