@@ -151,19 +151,18 @@ async function processOrder(page, order, productDetails, corePackagingWeight, pr
 }
 
 // Checks for a communication error modal and dismisses it
-// Returns true if modal appeared (treat as failure), false otherwise
-async function checkForCommunicationModal(page) {
+async function dismissErrorModal(page) {
   try {
     const okButton = await page.waitForSelector(
       'button[data-bb-handler="ok"].btn.btn-primary',
-      { timeout: 2000, visible: true }
+      { timeout: 1000, visible: true }
     );
-    console.log('Communication error modal detected');
+    console.error('Communication error modal detected');
     await okButton.click();
     await new Promise(resolve => setTimeout(resolve, 1500));
-    return true;
-  } catch {
-    return false;
+    throw new Error('Communication error modal appeared - voucher generation failed');
+  } catch (e) {
+    if (e.message.includes('Communication error modal')) throw e;
   }
 }
 
@@ -171,5 +170,5 @@ module.exports = {
   launchBrowser,
   loginAndWaitForCaptcha,
   processOrder,
-  checkForCommunicationModal
+  dismissErrorModal
 };

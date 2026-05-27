@@ -3,7 +3,7 @@ const fs = require('fs');
 const { app } = require('electron');
 
 const { readOrders } = require('./adapters/big-cartel-adapter');
-const { launchBrowser, loginAndWaitForCaptcha, processOrder, checkForCommunicationModal } = require('./adapters/elta-adapter');
+const { launchBrowser, loginAndWaitForCaptcha, processOrder, dismissErrorModal } = require('./adapters/elta-adapter');
 const { processOrderWithRetry } = require('./services/order-service');
 
 // Resolves the appropriate output directory for downloads and logs
@@ -44,21 +44,9 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
 
     for (const order of orders) {
       // Inject the adapter's processOrder as the executor
-      const executeOrder = (order) => processOrder(
-        page,
-        order,
-        productDetails,
-        corePackagingWeight,
-        productToCategory
-      );
-
-      // Inject the modal check so order-service can signal failures
-      const executeOrderWithModalCheck = async (order) => {
-        await executeOrder(order);
-        const modalAppeared = await checkForCommunicationModal(page);
-        if (modalAppeared) {
-          throw new Error('Communication error modal appeared - voucher generation failed');
-        }
+      const executeOrder = async (order) => {
+        await dismissErrorModal(page);
+        return processOrder(page, order, productDetails, corePackagingWeight, productToCategory);
       };
 
       await processOrderWithRetry(
@@ -66,7 +54,7 @@ async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeig
         productDetails,
         corePackagingWeight,
         productToCategory,
-        executeOrderWithModalCheck,
+        executeOrder,
         skippedOrders
       );
     }
