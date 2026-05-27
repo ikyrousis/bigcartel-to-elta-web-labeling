@@ -1,44 +1,45 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton';
 
 function CustomsDescriptions() {
   const { customsDescriptions, setCustomsDescriptions } = useAppContext();
   const [input, setInput] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleAdd = () => {
     if (!input.trim()) return;
     setCustomsDescriptions([...customsDescriptions, {
+      id: crypto.randomUUID(),
       description: input.trim(),
       hsTarifNumber: '',
       countryOfOrigin: ''
     }]);
     setInput('');
+    if (error) setError('');
   };
 
   const handleNext = () => {
     if (customsDescriptions.length === 0) {
-      alert('Please add at least one category.');
+      setError('Please add at least one category.');
       return;
     }
+    setError('');
     navigate('/map-products');
   };
 
-  const handleBack = () => {
-    navigate('/core-weight');
+  const handleCategoryChange = (id, field, value) => {
+    setCustomsDescriptions(
+      customsDescriptions.map(cat =>
+        cat.id === id ? { ...cat, [field]: value } : cat
+      )
+    );
   };
 
-  const handleCategoryChange = (index, field, value) => {
-    const updated = [...customsDescriptions];
-    updated[index][field] = value;
-    setCustomsDescriptions(updated);
-  };
-
-  const handleDelete = (index) => {
-    const updated = [...customsDescriptions];
-    updated.splice(index, 1);
-    setCustomsDescriptions(updated);
+  const handleDelete = (id) => {
+    setCustomsDescriptions(customsDescriptions.filter(cat => cat.id !== id));
   };
 
   return (
@@ -53,18 +54,15 @@ function CustomsDescriptions() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               className="description-input"
-              onKeyPress={(e) => e.key === 'Enter' && handleAdd()}
+              onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
             />
-            <button
-              onClick={handleAdd}
-              className="embedded-add-button"
-            >
-              +
-            </button>
+            <button onClick={handleAdd} className="embedded-add-button">+</button>
           </div>
         </div>
 
-        <table className="descriptions-table">
+        {error && <p className="field-error" role="alert">{error}</p>}
+
+        <table className="data-table data-table--narrow">
           <thead>
             <tr>
               <th>Customs Description</th>
@@ -74,8 +72,8 @@ function CustomsDescriptions() {
             </tr>
           </thead>
           <tbody>
-            {customsDescriptions.map((category, index) => (
-              <tr key={index} className="description-row">
+            {customsDescriptions.map((category) => (
+              <tr key={category.id} className="description-row">
                 <td>{category.description}</td>
                 <td>
                   <input
@@ -84,7 +82,7 @@ function CustomsDescriptions() {
                     value={category.hsTarifNumber || ''}
                     onChange={(e) => {
                       const val = e.target.value.replace(/\D/g, '');
-                      handleCategoryChange(index, 'hsTarifNumber', val);
+                      handleCategoryChange(category.id, 'hsTarifNumber', val);
                     }}
                   />
                 </td>
@@ -96,17 +94,12 @@ function CustomsDescriptions() {
                     value={category.countryOfOrigin || ''}
                     onChange={(e) => {
                       const val = e.target.value.replace(/[^A-Za-z]/g, '').toUpperCase();
-                      handleCategoryChange(index, 'countryOfOrigin', val);
+                      handleCategoryChange(category.id, 'countryOfOrigin', val);
                     }}
                   />
                 </td>
                 <td>
-                  <button
-                    onClick={() => handleDelete(index)}
-                    className="delete-button"
-                  >
-                    ×
-                  </button>
+                  <button onClick={() => handleDelete(category.id)} className="delete-button">×</button>
                 </td>
               </tr>
             ))}
@@ -114,8 +107,8 @@ function CustomsDescriptions() {
         </table>
 
         <div className="button-group">
-          <button onClick={handleBack}>Back</button>
-          <button onClick={handleNext}>Next</button>
+          <BackButton />
+          <button className="btn-primary" onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>

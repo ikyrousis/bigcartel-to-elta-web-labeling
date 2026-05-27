@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from 'react';
 
-const AppContext = createContext();
+const AppContext = createContext(null);
 
 export const AppProvider = ({ children }) => {
   const [csvPath, setCsvPath] = useState('');
@@ -26,4 +26,8 @@ export const AppProvider = ({ children }) => {
   );
 };
 
-export const useAppContext = () => useContext(AppContext);
+export const useAppContext = () => {
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error('useAppContext must be used inside <AppProvider>');
+  return ctx;
+};

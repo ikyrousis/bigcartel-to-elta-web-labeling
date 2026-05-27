@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
+import { useState, useEffect } from 'react';
+import BackButton from '../components/BackButton';
 
 function CoreWeight() {
   const { corePackagingWeight, setCorePackagingWeight } = useAppContext();
   const [weight, setWeight] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -13,35 +15,27 @@ function CoreWeight() {
 
   const handleNext = () => {
     const numWeight = parseFloat(weight);
-    
+
     if (!weight || isNaN(numWeight)) {
-      alert('Please enter a valid weight.');
+      setError('Please enter a valid weight.');
       return;
     }
 
-    if (numWeight < 0) {
-      alert('Weight cannot be negative.');
-      return;
-    }
-
+    setError('');
     setCorePackagingWeight(weight);
     navigate('/customs-descriptions');
-  };
-
-  const handleBack = () => {
-    navigate('/product-details');
   };
 
   return (
     <div className="page-wrapper">
       <div className="centered-container">
         <h2>📦 Core Packaging Weight</h2>
-        
+
         <div className="guideline-box">
           <p>Enter the total weight in kilograms (kg) of all packaging materials</p>
           <p>(boxes, tape, etc.) that will be used for all shipments combined.</p>
         </div>
-        
+
         <div className="core-weight-input">
           <input
             type="number"
@@ -49,17 +43,21 @@ function CoreWeight() {
             placeholder="0.00"
             value={weight}
             onChange={(e) => {
-              const val = parseFloat(e.target.value);
-              setWeight(val >= 0 ? e.target.value : '');
+              const raw = e.target.value;
+              if (raw !== '' && !/^\d*\.?\d{0,3}$/.test(raw)) return;
+              setWeight(raw >= 0 ? raw : '');
+              if (error) setError('');
             }}
             min="0"
           />
           <span className="input-suffix">kg</span>
         </div>
-        
+
+        {error && <p className="field-error" role="alert">{error}</p>}
+
         <div className="button-group">
-          <button onClick={handleBack}>Back</button>
-          <button onClick={handleNext}>Next</button>
+          <BackButton />
+          <button className="btn-primary" onClick={handleNext}>Next</button>
         </div>
       </div>
     </div>
