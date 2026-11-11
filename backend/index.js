@@ -18,13 +18,13 @@ function resolveOutputDir() {
 function writeSkippedOrdersLog(skippedOrders, outputDir) {
   if (skippedOrders.length === 0) return;
 
-  const logContent = skippedOrders.map(o => `${o.name} — ${o.reason}`).join('\n');
+  const logContent = skippedOrders.map(o => `${o.name} - ${o.reason}`).join('\n');
   const logPath = path.join(outputDir, 'skipped-orders.log');
   fs.writeFileSync(logPath, logContent);
   console.warn(`${skippedOrders.length} order(s) skipped. See ${logPath}`);
 }
 
-// Top-level orchestrator — wires all layers together
+// Top-level orchestrator - wires all layers together
 async function runPuppeteerWithData({ csvPath, productDetails, corePackagingWeight, productToCategory, markAsGift }) {
   const outputDir = resolveOutputDir();
 

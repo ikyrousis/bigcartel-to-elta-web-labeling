@@ -66,7 +66,7 @@
    Base button styles
    ============================================= */
 
-/* Shared primary button — used across all routes and the file input */
+/* Shared primary button - used across all routes and the file input */
 .btn-primary {
   padding: 0.75rem 1.5rem;
   background-color: var(--color-primary);
@@ -84,7 +84,7 @@
   box-shadow: var(--shadow-default);
 }
 
-/* Ghost/secondary nav button — for Back and neutral actions */
+/* Ghost/secondary nav button - for Back and neutral actions */
 .btn {
   padding: 0.75rem 1.5rem;
   background-color: var(--color-primary);
@@ -133,6 +133,17 @@ input:focus-visible {
   text-align: center;
 }
 
+.field-invalid {
+  border-color: #cc0000 !important;
+}
+
+.field-hint {
+  display: block;
+  color: #cc0000;
+  font-size: 0.75rem;
+  margin-top: 0.15rem;
+}
+
 
 /* =============================================
    CSV file input component
@@ -162,7 +173,7 @@ input:focus-visible {
   text-align: center;
 }
 
-/* Reuses .btn-primary — apply that class in SelectCsv.jsx */
+/* Reuses .btn-primary - apply that class in SelectCsv.jsx */
 .file-input-text {
   font-size: 0.9rem;
   color: var(--color-text-muted);

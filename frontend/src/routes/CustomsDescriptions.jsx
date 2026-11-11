@@ -5,10 +5,14 @@ import { countriesOfOrigin } from "../models/originCountries";
 import BackButton from '../components/BackButton';
 
 
+// Accept HS tariff numbers of exactly 6, 8 or 10 digits
+const isValidHs = (value) => /^(\d{6}|\d{8}|\d{10})$/.test(value.trim());
+
 function CustomsDescriptions() {
   const { customsDescriptions, setCustomsDescriptions } = useAppContext();
   const [input, setInput] = useState('');
   const [error, setError] = useState('');
+  const [attempted, setAttempted] = useState(false);
   const navigate = useNavigate();
 
   const handleAdd = () => {
@@ -24,22 +28,17 @@ function CustomsDescriptions() {
   };
 
   const handleNext = () => {
+    setAttempted(true);
+
     if (customsDescriptions.length === 0) {
       setError('Please add at least one category.');
       return;
     }
 
-    const missingHS = customsDescriptions.find(c => !c.hsTarifNumber?.trim());
-    if (missingHS) {
-      setError(`HS Tarif Number is required — missing on "${missingHS.description}"`);
-      return;
-    }
-
-    const missingOrigin = customsDescriptions.find(c => !c.countryOfOrigin?.trim());
-    if (missingOrigin) {
-      setError(`Country of Origin is required — missing on "${missingOrigin.description}"`);
-      return;
-    }
+    // Field-level hints are shown inline under each invalid input
+    const hasInvalidHS = customsDescriptions.some(c => !c.hsTarifNumber?.trim() || !isValidHs(c.hsTarifNumber));
+    const hasMissingOrigin = customsDescriptions.some(c => !c.countryOfOrigin?.trim());
+    if (hasInvalidHS || hasMissingOrigin) return;
 
     setError('');
     navigate('/map-products');
@@ -97,29 +96,53 @@ function CustomsDescriptions() {
               <tr key={category.id} className="description-row">
                 <td>{category.description}</td>
                 <td>
-                  <input
-                    placeholder="Required"
-                    type="text"
-                    value={category.hsTarifNumber || ''}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '');
-                      handleCategoryChange(category.id, 'hsTarifNumber', val);
-                    }}
-                  />
+                  {(() => {
+                    const hs = category.hsTarifNumber || '';
+                    const hsInvalid = !isValidHs(hs);
+                    const showHint = hsInvalid && (hs !== '' || attempted);
+                    return (
+                      <>
+                        <input
+                          placeholder="6, 8 or 10 digits"
+                          type="text"
+                          value={hs}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            handleCategoryChange(category.id, 'hsTarifNumber', val);
+                          }}
+                          className={showHint ? 'field-invalid' : ''}
+                        />
+                        {showHint && (
+                          <span className="field-hint">{hs ? 'Must be 6, 8 or 10 digits' : 'Required'}</span>
+                        )}
+                      </>
+                    );
+                  })()}
                 </td>
                 <td>
-                  <select
-                    value={category.countryOfOrigin || ''}
-                    onChange={(e) => handleCategoryChange(category.id, 'countryOfOrigin', e.target.value)}
-                    className="mapping-select"
-                  >
-                    <option value="" disabled>Select</option>
-                    {countriesOfOrigin.map(c => (
-                      <option key={c.code} value={c.code}>
-                        {c.code} — {c.name}
-                      </option>
-                    ))}
-                  </select>
+                  {(() => {
+                    const originMissing = !category.countryOfOrigin?.trim();
+                    const showHint = originMissing && attempted;
+                    return (
+                      <>
+                        <select
+                          value={category.countryOfOrigin || ''}
+                          onChange={(e) => handleCategoryChange(category.id, 'countryOfOrigin', e.target.value)}
+                          className={`mapping-select${showHint ? ' field-invalid' : ''}`}
+                        >
+                          <option value="" disabled>Select</option>
+                          {countriesOfOrigin.map(c => (
+                            <option key={c.code} value={c.code}>
+                              {c.code} - {c.name}
+                            </option>
+                          ))}
+                        </select>
+                        {showHint && (
+                          <span className="field-hint">Please select</span>
+                        )}
+                      </>
+                    );
+                  })()}
                 </td>
                 <td>
                   <button onClick={() => handleDelete(category.id)} className="delete-button">×</button>
